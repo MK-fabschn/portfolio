@@ -16,12 +16,12 @@ interface LegalDoc {
 
 export const legalDocs: Record<Lang, LegalDoc[]> = {
   en: [
-    { key: 'legal-notice', title: 'Legal notice', href: '/legal-notice/', Content: LegalNotice },
-    { key: 'privacy', title: 'Privacy', href: '/privacy/', Content: Privacy },
+    { key: 'legal-notice', title: 'Legal notice', href: '/en/legal-notice/', Content: LegalNotice },
+    { key: 'privacy', title: 'Privacy', href: '/en/privacy/', Content: Privacy },
   ],
   de: [
-    { key: 'legal-notice', title: 'Impressum', href: '/de/impressum/', Content: Impressum },
-    { key: 'privacy', title: 'Datenschutz', href: '/de/datenschutz/', Content: Datenschutz },
+    { key: 'legal-notice', title: 'Impressum', href: '/impressum/', Content: Impressum },
+    { key: 'privacy', title: 'Datenschutz', href: '/datenschutz/', Content: Datenschutz },
   ],
 };
 

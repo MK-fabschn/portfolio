@@ -1,12 +1,12 @@
-/** English is the default and lives at `/`; German mirrors every page under `/de/`. */
-export const langs = ['en', 'de'] as const;
+/** German is the default and lives at `/`; English mirrors every page under `/en/`. */
+export const langs = ['de', 'en'] as const;
 export type Lang = (typeof langs)[number];
 
 export const otherLang = (lang: Lang): Lang => (lang === 'en' ? 'de' : 'en');
 
-export const homePath: Record<Lang, string> = { en: '/', de: '/de/' };
-export const projectsPath: Record<Lang, string> = { en: '/projects/', de: '/de/projekte/' };
-export const printPath: Record<Lang, string> = { en: '/print-portfolio/', de: '/de/print-portfolio/' };
+export const homePath: Record<Lang, string> = { de: '/', en: '/en/' };
+export const projectsPath: Record<Lang, string> = { de: '/projekte/', en: '/en/projects/' };
+export const printPath: Record<Lang, string> = { de: '/print-portfolio/', en: '/en/print-portfolio/' };
 
 /** Strings shared by several components. Copy that belongs to one section stays in that section. */
 export const ui = {

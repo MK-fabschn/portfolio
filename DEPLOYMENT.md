@@ -1,6 +1,6 @@
 # Deployment – fabian-trutschnig.dev
 
-Statische Astro-Seite in einem nginx-Container auf dem netcup-VPS des MK-Nikolsdorf-Projekts.
+Statische Astro-Seite in einem nginx-Container auf dem netcup-VPS (37.221.193.54).
 Sie läuft hinter dem Traefik aus dem MK-Nikolsdorf-Stack (`infra/traefik` im MK-Repo,
 Docker-Netz `web`). Code-Deploys laufen per GitHub Action über SSH (`scripts/deploy.sh`).
 
@@ -10,7 +10,7 @@ Besucher ─► Cloudflare (Proxy, SSL „Full (strict)“) ─► VPS :443 Trae
 
 ## 1. Cloudflare (einmalig, Dashboard)
 
-- **DNS:** `A  fabian-trutschnig.dev → <VPS-IP>` (Proxy an), `CNAME www → fabian-trutschnig.dev` (Proxy an)
+- **DNS:** `A  fabian-trutschnig.dev → 37.221.193.54` (Proxy an), `CNAME www → fabian-trutschnig.dev` (Proxy an)
 - **SSL/TLS → Overview:** Modus **Full (strict)**. Unter **Edge Certificates**: „Always Use HTTPS“ an.
 - **Ausschalten**, damit die Seite ohne Cookies und Fremd-Skripte bleibt (Datenschutzerklärung!):
   - Security → Bots: **Bot Fight Mode** aus (setzt sonst das Cookie `__cf_bm`)
@@ -48,13 +48,13 @@ cd ~/portfolio && chmod +x scripts/deploy.sh && ./scripts/deploy.sh
 
 Repo → Settings → Secrets and variables → Actions:
 
-| Secret         | Wert                                                  |
-| -------------- | ----------------------------------------------------- |
-| `VPS_HOST`     | IP des VPS (nicht ins Repo schreiben)                 |
-| `VPS_USER`     | `portfolio`                                           |
-| `VPS_SSH_KEY`  | privater Schlüssel des Deploy-Keys GitHub → Server    |
-| `VPS_SSH_PORT` | optional, Standard `22`                               |
-| `DEPLOY_PATH`  | `/home/portfolio/portfolio`                           |
+| Secret         | Wert                                               |
+| -------------- | -------------------------------------------------- |
+| `VPS_HOST`     | `37.221.193.54`                                    |
+| `VPS_USER`     | `portfolio`                                        |
+| `VPS_SSH_KEY`  | privater Schlüssel des Deploy-Keys GitHub → Server |
+| `VPS_SSH_PORT` | optional, Standard `22`                            |
+| `DEPLOY_PATH`  | `/home/portfolio/portfolio`                        |
 
 Der zugehörige Public Key steht in `/home/portfolio/.ssh/authorized_keys`.
 

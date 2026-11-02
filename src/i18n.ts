@@ -7,6 +7,7 @@ export const otherLang = (lang: Lang): Lang => (lang === 'en' ? 'de' : 'en');
 export const homePath: Record<Lang, string> = { de: '/', en: '/en/' };
 export const projectsPath: Record<Lang, string> = { de: '/projekte/', en: '/en/projects/' };
 export const printPath: Record<Lang, string> = { de: '/print-portfolio/', en: '/en/print-portfolio/' };
+export const cvPath: Record<Lang, string> = { de: '/lebenslauf/', en: '/en/cv/' };
 
 /** Strings shared by several components. Copy that belongs to one section stays in that section. */
 export const ui = {

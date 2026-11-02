@@ -6,62 +6,113 @@ import PageHeader from '../PageHeader.astro';
 import Footer from '../Footer.astro';
 import LegalDialogs from '../legal/LegalDialogs.astro';
 import { responsiveImage } from '../../lib/images';
-import { printPages, printPdf } from '../../data/print';
-import { homePath, printPath, ui, type Lang } from '../../i18n';
+import { downloads, printPages, type PrintDoc } from '../../data/print';
+import { cvPath, homePath, printPath, ui, type Lang } from '../../i18n';
 
 interface Props {
   lang: Lang;
+  doc: PrintDoc;
 }
 
-const { lang } = Astro.props;
+const { lang, doc } = Astro.props;
 const t = ui[lang];
 
 const pages = await Promise.all(
-  printPages(lang).map(async (page) => ({ ...page, image: await responsiveImage(page.src, [600, 900, 1200, 1654]) })),
+  printPages(doc, lang).map(async (page) => ({ ...page, image: await responsiveImage(page.src, [600, 900, 1200, 1654]) })),
 );
 const total = pages.length;
-const pdfSize = `${(statSync(join(process.cwd(), 'public', printPdf)).size / 1024 ** 2).toFixed(1)} MB`;
+/** A one-page document is shown as a single sheet, without the flip book. */
+const single = total === 1;
+const megabytes = new Intl.NumberFormat(lang === 'de' ? 'de-AT' : 'en', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const files = downloads[doc].map((file) => ({
+  ...file,
+  // No-break space, so "MB" never ends up alone on the next line.
+  size: `${megabytes.format(statSync(join(process.cwd(), 'public', file.href)).size / 1024 ** 2)} MB`,
+}));
+
+/** Per document: page title, heading, lead, and the link to the other document. */
+const docCopy = {
+  portfolio: {
+    en: {
+      title: 'Print portfolio',
+      description:
+        'The printed portfolio of Fabian Trutschnig as a flip-through booklet, with PDF downloads for screen and print.',
+      heading: ['Print', 'portfolio'],
+      lead: 'The printed edition of my portfolio. Flip through it like the real booklet: click a page or drag its corner.',
+      note: 'The print edition is in German.',
+      stage: 'Print portfolio, flip-through view',
+      zoomTitle: 'Print portfolio, zoomed view',
+      hint: 'Arrow keys, click, or drag a page corner. Zoom in to read the pages.',
+      other: { label: 'View my CV', href: cvPath.en },
+    },
+    de: {
+      title: 'Print-Portfolio',
+      description: 'Das gedruckte Portfolio von Fabian Trutschnig zum Durchblättern, mit PDF-Download für Bildschirm und Druck.',
+      heading: ['Print', 'Portfolio'],
+      lead: 'Die gedruckte Ausgabe meines Portfolios. Zum Durchblättern wie das echte Heft: Seite anklicken oder an der Ecke ziehen.',
+      note: '',
+      stage: 'Print-Portfolio, Blätteransicht',
+      zoomTitle: 'Print-Portfolio, vergrößerte Ansicht',
+      hint: 'Pfeiltasten, Klick oder an der Seitenecke ziehen. Zum Lesen die Seiten heranzoomen.',
+      other: { label: 'Lebenslauf ansehen', href: cvPath.de },
+    },
+  },
+  cv: {
+    en: {
+      title: 'CV',
+      description: 'The CV of Fabian Trutschnig as a preview, with PDF downloads for screen and print.',
+      heading: ['My', 'CV'],
+      lead: 'My CV on a single page. Zoom in to read it, or download it as a PDF.',
+      note: 'The CV is in German.',
+      stage: 'CV, page view',
+      zoomTitle: 'CV, zoomed view',
+      hint: 'Click the page or use zoom to read it.',
+      other: { label: 'View the print portfolio', href: printPath.en },
+    },
+    de: {
+      title: 'Lebenslauf',
+      description: 'Der Lebenslauf von Fabian Trutschnig als Vorschau, mit PDF-Download für Bildschirm und Druck.',
+      heading: ['Mein', 'Lebenslauf'],
+      lead: 'Mein Lebenslauf auf einer Seite. Zum Lesen heranzoomen oder als PDF herunterladen.',
+      note: '',
+      stage: 'Lebenslauf, Seitenansicht',
+      zoomTitle: 'Lebenslauf, vergrößerte Ansicht',
+      hint: 'Zum Lesen die Seite anklicken oder heranzoomen.',
+      other: { label: 'Print-Portfolio ansehen', href: printPath.de },
+    },
+  },
+}[doc][lang];
 
 const copy = {
   en: {
-    title: 'Print portfolio',
-    description: 'The printed portfolio of Fabian Trutschnig as a flip-through booklet, with a PDF download.',
-    heading: ['Print', 'portfolio'],
-    lead: 'The printed edition of my portfolio. Flip through it like the real booklet: click a page or drag its corner.',
-    note: 'The print edition is in German.',
+    ...docCopy,
     pdf: 'Download PDF',
-    stage: 'Print portfolio, flip-through view',
+    downloadMenu: 'PDF versions',
+    kinds: { digital: 'Digital', print: 'Print' },
     prev: 'Previous page',
     next: 'Next page',
     status: `Page {pages} of ${total}`,
     fullscreen: 'Full screen',
     exitFullscreen: 'Exit full screen',
     zoom: 'Zoom',
-    zoomTitle: 'Print portfolio, zoomed view',
     zoomIn: 'Zoom in',
     zoomOut: 'Zoom out',
     zoomLevel: 'Zoom level',
-    hint: 'Arrow keys, click, or drag a page corner. Zoom in to read the pages.',
   },
   de: {
-    title: 'Print-Portfolio',
-    description: 'Das gedruckte Portfolio von Fabian Trutschnig zum Durchblättern, mit PDF-Download.',
-    heading: ['Print', 'Portfolio'],
-    lead: 'Die gedruckte Ausgabe meines Portfolios. Zum Durchblättern wie das echte Heft: Seite anklicken oder an der Ecke ziehen.',
-    note: '',
+    ...docCopy,
     pdf: 'PDF herunterladen',
-    stage: 'Print-Portfolio, Blätteransicht',
+    downloadMenu: 'PDF-Versionen',
+    kinds: { digital: 'Digital', print: 'Print' },
     prev: 'Vorherige Seite',
     next: 'Nächste Seite',
     status: `Seite {pages} von ${total}`,
     fullscreen: 'Vollbild',
     exitFullscreen: 'Vollbild beenden',
     zoom: 'Zoomen',
-    zoomTitle: 'Print-Portfolio, vergrößerte Ansicht',
     zoomIn: 'Vergrößern',
     zoomOut: 'Verkleinern',
     zoomLevel: 'Zoomstufe',
-    hint: 'Pfeiltasten, Klick oder an der Seitenecke ziehen. Zum Lesen die Seiten heranzoomen.',
   },
 }[lang];
 ---
@@ -73,26 +124,44 @@ const copy = {
   </script>
 
   <div class="wrap">
-    <PageHeader lang={lang} paths={printPath} />
+    <PageHeader lang={lang} paths={doc === 'cv' ? cvPath : printPath} />
     <main id="main">
       <section class="print-intro">
         <div class="rule-row">
           <a href={homePath[lang]}>← {t.home.toUpperCase()}</a>
+          <a href={copy.other.href}>{copy.other.label.toUpperCase()} →</a>
         </div>
         <div class="section-intro print-heading">
           <h1 class="display">{copy.heading[0]}<span class="display-script">{copy.heading[1]}</span></h1>
           <div class="print-lead">
             <p>{copy.lead}{copy.note && <> <em>{copy.note}</em></>}</p>
-            <a class="pill pill-petrol" href={printPdf} download>
-              {copy.pdf} <span class="print-size">· {pdfSize}</span> <span aria-hidden="true">↓</span>
-            </a>
+            {/* Two PDFs of the same layout: one for screen and e-mail, one for the print shop. */}
+            <details class="download" data-download>
+              <summary class="pill pill-petrol">
+                {copy.pdf} <span aria-hidden="true">↓</span>
+              </summary>
+              <ul class="download-menu" aria-label={copy.downloadMenu}>
+                {
+                  files.map((file) => (
+                    <li>
+                      <a href={file.href} download>
+                        <span class="download-name">{copy.kinds[file.kind]}</span>
+                        <span class="download-meta">
+                          {file.meta[lang]} · {file.size}
+                        </span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </details>
           </div>
         </div>
       </section>
     </main>
   </div>
 
-  <section class="print-stage" aria-label={copy.stage} data-stage>
+  <section class:list={['print-stage', { 'is-single': single }]} aria-label={copy.stage} data-stage>
     <div class="book-frame">
       <div class="book" data-book>
         {
@@ -101,7 +170,7 @@ const copy = {
               <img
                 src={page.image.src}
                 srcset={page.image.srcSet}
-                sizes="(min-width: 560px) min(50vw, 70svh), 100vw"
+                sizes={single ? 'min(100vw, 60svh)' : '(min-width: 560px) min(50vw, 70svh), 100vw'}
                 width={page.image.width}
                 height={page.image.height}
                 alt={page.alt}
@@ -115,9 +184,9 @@ const copy = {
     </div>
 
     <div class="book-controls" hidden data-controls>
-      <button class="round-btn" type="button" aria-label={copy.prev} data-prev>←</button>
-      <p class="book-status" aria-live="polite" data-status={copy.status}></p>
-      <button class="round-btn" type="button" aria-label={copy.next} data-next>→</button>
+      <button class="round-btn" type="button" aria-label={copy.prev} hidden={single} data-prev>←</button>
+      <p class="book-status" aria-live="polite" hidden={single} data-status={copy.status}></p>
+      <button class="round-btn" type="button" aria-label={copy.next} hidden={single} data-next>→</button>
       <button class="book-tool" type="button" data-zoom-open>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="10.5" cy="10.5" r="6.5"></circle>
@@ -141,7 +210,7 @@ const copy = {
     {/* Inside the stage, so it stays on screen when the stage is in full screen. */}
     <dialog class="zoom" aria-label={copy.zoomTitle} data-zoom>
       <div class="zoom-bar">
-        <div class="zoom-group">
+        <div class="zoom-group" hidden={single}>
           <button class="round-btn" type="button" aria-label={copy.prev} data-zoom-prev>←</button>
           <p class="book-status" data-zoom-status></p>
           <button class="round-btn" type="button" aria-label={copy.next} data-zoom-next>→</button>
@@ -181,58 +250,78 @@ const copy = {
     // One printed page in pixels, from the attributes: the rendered size is still the placeholder's.
     const width = Number(images[0].getAttribute('width'));
     const height = Number(images[0].getAttribute('height'));
-  
-    const flip = new PageFlip(book, {
-      // "stretch" scales the book to the frame's width and switches to single pages below 2 × minWidth.
-      width,
-      height,
-      size: 'stretch',
-      minWidth: 280,
-      maxWidth: width,
-      minHeight: 396,
-      maxHeight: height,
-      showCover: true,
-      usePortrait: true,
-      mobileScrollSupport: true,
-      maxShadowOpacity: 0.4,
-      flippingTime: matchMedia('(prefers-reduced-motion: reduce)').matches ? 250 : 800,
-    });
-  
+
+    // A single sheet (the CV) has nothing to turn, so it gets no flip book; clicking it opens the zoom.
+    const flip =
+      pages.length > 1
+        ? new PageFlip(book, {
+            // "stretch" scales the book to the frame's width and switches to single pages below 2 × minWidth.
+            width,
+            height,
+            size: 'stretch',
+            minWidth: 280,
+            maxWidth: width,
+            minHeight: 396,
+            maxHeight: height,
+            showCover: true,
+            usePortrait: true,
+            mobileScrollSupport: true,
+            maxShadowOpacity: 0.4,
+            flippingTime: matchMedia('(prefers-reduced-motion: reduce)').matches ? 250 : 800,
+          })
+        : null;
+    const portrait = () => !flip || flip.getOrientation() === 'portrait';
+    const currentIndex = () => flip?.getCurrentPageIndex() ?? 0;
+
     /** The page indexes shown together with `index`: the covers alone, the rest as spreads, or one at a time on narrow screens. */
     function viewOf(index: number) {
       const last = pages.length - 1;
-      if (flip.getOrientation() === 'portrait' || index === 0 || index === last) return [index];
+      if (portrait() || index === 0 || index === last) return [index];
       const left = index % 2 === 1 ? index : index - 1;
       return left === last ? [left] : [left, left + 1];
     }
-  
+
     /** "Page 4–5 of 18", with the printed page numbers. */
     function statusText(view: number[]) {
       return status.dataset.status!.replace('{pages}', view.map((i) => i + 1).join('–'));
     }
-  
-    function update(index = flip.getCurrentPageIndex()) {
+
+    function update(index = currentIndex()) {
       status.textContent = statusText(viewOf(index));
       prev.disabled = index === 0;
-      next.disabled = index >= pages.length - (flip.getOrientation() === 'portrait' ? 1 : 2);
+      next.disabled = index >= pages.length - (portrait() ? 1 : 2);
       // Fetch the next pages ahead of time, so a page never turns over blank.
       for (let i = index; i < Math.min(index + 5, images.length); i++) images[i].loading = 'eager';
     }
-  
-    flip.on('flip', (e) => update(e.data));
-    flip.on('changeOrientation', () => update());
-    flip.loadFromHTML(pages);
+
+    if (flip) {
+      flip.on('flip', (e) => update(e.data));
+      flip.on('changeOrientation', () => update());
+      flip.loadFromHTML(pages);
+    }
     update(0);
-  
-    prev.addEventListener('click', () => flip.flipPrev());
-    next.addEventListener('click', () => flip.flipNext());
+
+    prev.addEventListener('click', () => flip?.flipPrev());
+    next.addEventListener('click', () => flip?.flipNext());
     document.addEventListener('keydown', (e) => {
-      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || document.querySelector('dialog[open]')) return;
+      if (!flip || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || document.querySelector('dialog[open]')) return;
       if (e.key === 'ArrowRight') flip.flipNext();
       else if (e.key === 'ArrowLeft') flip.flipPrev();
       else return;
       e.preventDefault();
     });
+
+    // Download menu: closes on a click elsewhere, on Escape, and once a version is picked.
+    const download = document.querySelector<HTMLDetailsElement>('[data-download]')!;
+    document.addEventListener('click', (e) => {
+      if (download.open && !download.contains(e.target as Node)) download.open = false;
+    });
+    download.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !download.open) return;
+      download.open = false;
+      download.querySelector('summary')!.focus();
+    });
+    download.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => (download.open = false)));
   
     if (document.fullscreenEnabled) {
       fullscreen.hidden = false;
@@ -325,13 +414,15 @@ const copy = {
       });
     }
   
-    stage.querySelector('[data-zoom-open]')!.addEventListener('click', () => {
+    const openZoom = () => {
       zoom.showModal();
-      showView(viewOf(flip.getCurrentPageIndex()));
-    });
+      showView(viewOf(currentIndex()));
+    };
+    stage.querySelector('[data-zoom-open]')!.addEventListener('click', openZoom);
+    if (!flip) pages[0].addEventListener('click', openZoom);
     // The book waits on the page that was read last.
     zoom.addEventListener('close', () => {
-      flip.turnToPage(shown[0]);
+      flip?.turnToPage(shown[0]);
       update(shown[0]);
     });
     zoomPrev.addEventListener('click', () => showView(viewOf(shown[0] - 1)));
@@ -452,9 +543,59 @@ const copy = {
     font-style: normal;
     font-weight: 600;
   }
-  .print-size {
-    font-weight: 400;
-    opacity: 0.75;
+  /* Download: the pill opens a small menu with the digital and the print version. */
+  .download {
+    position: relative;
+  }
+  .download summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .download summary::-webkit-details-marker {
+    display: none;
+  }
+  .download summary span {
+    transition: transform 0.2s;
+  }
+  .download[open] summary span {
+    transform: rotate(180deg);
+  }
+  .download-menu {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    width: max-content;
+    max-width: min(22rem, calc(100vw - 2 * var(--gutter)));
+    margin: 0;
+    padding: var(--space-2);
+    list-style: none;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 1rem;
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .download-menu a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-height: var(--tap);
+    padding: var(--space-3) var(--space-4);
+    border-radius: 0.625rem;
+    color: var(--ink);
+    transition: background-color 0.2s;
+  }
+  .download-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+  .download-name::after {
+    content: ' ↓';
+    color: var(--petrol);
+  }
+  .download-meta {
+    font-size: 0.8125rem;
+    color: var(--muted);
   }
 
   .print-stage {
@@ -506,6 +647,22 @@ const copy = {
   :global(.js) .book:not(:global(.stf__parent)) .book-page:not(:first-child) {
     display: none;
   }
+  /* One sheet, no flip book: as large as a spread page would be, centred, with the same paper shadow. */
+  .print-stage.is-single {
+    --book-ratio: calc(1654 / 2339);
+  }
+  .is-single .book,
+  :global(.js) .is-single .book:not(:global(.stf__parent)) {
+    display: block;
+    padding-left: 0;
+  }
+  .is-single .book-page {
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
+    cursor: zoom-in;
+  }
+  .is-single .book-page img {
+    height: auto;
+  }
 
   .book-controls {
     display: flex;
@@ -515,9 +672,7 @@ const copy = {
     gap: var(--space-4);
     margin-top: var(--space-5);
   }
-  .book-controls[hidden],
-  .book-hint[hidden],
-  .book-tool[hidden] {
+  .print-stage [hidden] {
     display: none;
   }
   .round-btn:disabled {
@@ -670,6 +825,13 @@ const copy = {
     .book-tool:hover {
       background: var(--ink);
       color: var(--paper);
+    }
+    .download-menu a:hover {
+      background: var(--sand);
+    }
+    /* on Sand, where Stein only reaches 4.0:1 */
+    .download-menu a:hover .download-meta {
+      color: var(--ink-soft);
     }
   }
   @media (max-width: 559px) {

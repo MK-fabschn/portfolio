@@ -1,0 +1,95 @@
+---
+import { site } from '../../data/site';
+
+interface Props {
+  /** `h1` on the standalone page, `h2` inside the dialog. */
+  heading?: 'h1' | 'h2';
+}
+
+const { heading: Heading = 'h2' } = Astro.props;
+---
+
+{/* German counterpart of Privacy.astro. <mark> = still to be checked before go-live. */}
+<Heading class="legal-title" id="privacy-title">Datenschutz</Heading>
+<p>
+  Der Schutz Ihrer persönlichen Daten ist mir ein Anliegen. Ich verarbeite Daten ausschließlich auf Grundlage der
+  gesetzlichen Bestimmungen (DSGVO, Datenschutzgesetz DSG und Telekommunikationsgesetz TKG 2021).
+</p>
+
+<h3>Verantwortlicher</h3>
+<p>
+  {site.name}, {site.residence}, Osttirol, Österreich<br />
+  E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+</p>
+
+<h3>Hosting</h3>
+<p>
+  Diese Website läuft auf einem Server der netcup GmbH, Karlsruhe, Deutschland, die als Auftragsverarbeiter tätig ist.
+  Der Server speichert keine Zugriffsprotokolle. Technische Fehlermeldungen des Servers können die IP-Adresse
+  enthalten; sie werden nur in geringem Umfang gespeichert und laufend überschrieben. Rechtsgrundlage ist das
+  berechtigte Interesse an einem sicheren und zuverlässigen Betrieb (Art. 6 Abs. 1 lit. f DSGVO).
+</p>
+
+<h3>Cloudflare</h3>
+<p>
+  Alle Aufrufe dieser Website laufen über das Netzwerk der Cloudflare, Inc., San Francisco, USA (Reverse Proxy und
+  Content Delivery Network). Dabei verarbeitet Cloudflare technisch notwendige Daten wie Ihre IP-Adresse, die
+  aufgerufene Seite, Datum und Uhrzeit sowie Browser-Informationen, um die Website auszuliefern und vor Angriffen zu
+  schützen. Rechtsgrundlage ist das berechtigte Interesse an einer sicheren und schnellen Auslieferung (Art. 6 Abs. 1
+  lit. f DSGVO). Cloudflare ist als Auftragsverarbeiter tätig.
+</p>
+<p>
+  Dabei können Daten in die USA übermittelt werden. Cloudflare ist unter dem EU-US Data Privacy Framework zertifiziert;
+  die Übermittlung stützt sich auf den Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO) und ergänzend auf
+  Standardvertragsklauseln. <mark>Cloudflare speichert diese Daten nur so lange, wie es für den Betrieb und die
+  Sicherheit nötig ist.</mark> Mehr dazu in der Datenschutzerklärung von Cloudflare:
+  <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener noreferrer">www.cloudflare.com/privacypolicy</a>
+</p>
+
+<h3>Kontakt per E-Mail</h3>
+<p>
+  Wenn Sie mir eine E-Mail schreiben, werden Ihre Angaben zur Bearbeitung der Anfrage und für Anschlussfragen
+  gespeichert (Art. 6 Abs. 1 lit. f DSGVO). Ich lösche sie, sobald Ihre Anfrage erledigt ist, außer eine gesetzliche
+  Aufbewahrungspflicht steht dem entgegen. Diese Daten gebe ich nicht ohne Ihre Einwilligung weiter.
+</p>
+
+<h3>Cookies und lokaler Speicher</h3>
+<p>
+  Diese Website setzt keine Cookies und speichert nichts in Ihrem Browser (§ 165 Abs. 3 TKG 2021). Deshalb wird auch
+  keine Einwilligung abgefragt. Es gibt keine Tracking- oder Marketingdienste und keine Analysewerkzeuge.
+</p>
+
+<h3>Schriften, Skripte und Bilder</h3>
+<p>
+  Alle Schriften, Skripte und Bilder werden von dieser Domain geladen. Abgesehen von der Auslieferung über Cloudflare
+  (siehe oben) entsteht beim Aufruf der Website keine Verbindung zu Google oder anderen Dritten.
+</p>
+
+<h3>Externe Links</h3>
+<p>
+  Einige Projektseiten verlinken auf externe Websites. Daten werden erst an den jeweiligen Betreiber übertragen, wenn
+  Sie einen solchen Link anklicken; dort gilt dessen Datenschutzerklärung.
+</p>
+
+<h3>Projekt-Screenshots</h3>
+<p>
+  Die in den Screenshots der Web-Apps sichtbaren Konten, Namen und Inhalte sind erfundene Demodaten. Es werden keine
+  Daten echter Nutzerinnen und Nutzer gezeigt. Die Screenshots der Website der Musikkapelle Nikolsdorf zeigen
+  Mitglieder der Kapelle so, wie sie auf der öffentlichen Website des Vereins zu sehen sind, und werden mit Erlaubnis
+  verwendet.
+</p>
+
+<h3>Ihre Rechte</h3>
+<p>
+  Ihnen stehen die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und
+  Datenübertragbarkeit zu. Gegen Verarbeitungen, die auf berechtigtem Interesse beruhen, können Sie jederzeit
+  Widerspruch einlegen (Art. 21 DSGVO). Um diese Rechte auszuüben, schreiben Sie mir einfach eine E-Mail. Eine
+  automatisierte Entscheidungsfindung oder ein Profiling findet nicht statt.
+</p>
+<p>
+  Wenn Sie glauben, dass die Verarbeitung Ihrer Daten gegen das Datenschutzrecht verstößt, können Sie sich bei der
+  Aufsichtsbehörde beschweren: Österreichische Datenschutzbehörde, Barichgasse 40–42, 1030 Wien,
+  <a href="https://www.dsb.gv.at" rel="noopener noreferrer">www.dsb.gv.at</a>
+</p>
+
+<p>Stand: November 2026</p>

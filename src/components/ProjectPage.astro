@@ -1,0 +1,503 @@
+---
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHeader from './PageHeader.astro';
+import Footer from './Footer.astro';
+import LegalDialogs from './legal/LegalDialogs.astro';
+import Carousel from './Carousel';
+import { responsiveImage } from '../lib/images';
+import { categoryLabels, projectHref, type projectPaths } from '../lib/projects';
+import { site } from '../data/site';
+import { homePath, langs, ui } from '../i18n';
+
+type Props = Awaited<ReturnType<typeof projectPaths>>[number]['props'];
+
+const { lang, project, no, prev, next } = Astro.props;
+const { data } = project;
+const { Content } = await render(project);
+const t = ui[lang];
+
+const copy = {
+  en: {
+    back: '← ALL PROJECTS',
+    project: 'PROJECT',
+    visit: 'Visit live site',
+    client: 'CLIENT',
+    context: 'CONTEXT',
+    year: 'YEAR',
+    role: 'ROLE',
+    tools: 'TOOLS',
+    numbers: ['In ', 'numbers'],
+    pager: 'Projects',
+    prev: 'PREVIOUS',
+    next: 'NEXT',
+    cta: ['Similar', 'project?'],
+    ctaText: 'Tell me about your idea — I usually reply within a day.',
+    carousel: {
+      group: 'Project images',
+      track: 'Project images, scrollable',
+      prev: 'Previous image',
+      next: 'Next image',
+      image: 'Image',
+    },
+  },
+  de: {
+    back: '← ALLE PROJEKTE',
+    project: 'PROJEKT',
+    visit: 'Live-Seite besuchen',
+    client: 'KUNDE',
+    context: 'KONTEXT',
+    year: 'JAHR',
+    role: 'ROLLE',
+    tools: 'TOOLS',
+    numbers: ['In ', 'Zahlen'],
+    pager: 'Projekte',
+    prev: 'VORHERIGES',
+    next: 'NÄCHSTES',
+    cta: ['Ähnliches', 'Projekt?'],
+    ctaText: 'Erzählen Sie mir von Ihrer Idee — ich antworte meist innerhalb eines Tages.',
+    carousel: {
+      group: 'Projektbilder',
+      track: 'Projektbilder, scrollbar',
+      prev: 'Vorheriges Bild',
+      next: 'Nächstes Bild',
+      image: 'Bild',
+    },
+  },
+}[lang];
+
+/** The same project in each language, for the language switch. */
+const paths = Object.fromEntries(langs.map((l) => [l, projectHref(l, project.id)])) as Record<typeof lang, string>;
+const workHref = `${homePath[lang]}#work`;
+
+const slides = await Promise.all(
+  data.gallery.map(async (item) => ({
+    image: await responsiveImage(item.src, [720, 1080, 1440, 1800]),
+    caption: item.caption,
+    focus: item.focus,
+    fit: item.fit,
+  })),
+);
+
+const facts = [
+  data.client ? { label: copy.client, value: data.client } : { label: copy.context, value: data.context ?? '—' },
+  { label: copy.year, value: data.year },
+  { label: copy.role, value: data.role },
+  { label: copy.tools, value: data.tools },
+];
+---
+
+<Base lang={lang} title={data.title} description={data.description}>
+  <div class="wrap">
+    <PageHeader lang={lang} paths={paths} current="work" />
+
+    <main id="main">
+      <section class="project-hero">
+        <div class="rule-row">
+          <a class="back" href={workHref}>{copy.back}</a>
+          <span>{copy.project} {no} — {categoryLabels[lang][data.categories[0]].toUpperCase()}</span>
+        </div>
+        <div class="project-head">
+          <div class="project-title-row">
+            <span class="outline-no project-no" aria-hidden="true">{no}</span>
+            <h1 class="project-title" data-project={project.id}>
+              {data.title}<span class="display-script project-kind">{data.kind}</span>
+            </h1>
+          </div>
+          <div class="project-lead">
+            <p>{data.lead}</p>
+            {
+              data.url && (
+                <a class="pill pill-petrol" href={data.url} rel="noopener noreferrer">
+                  {copy.visit} <span aria-hidden="true">↗</span>
+                </a>
+              )
+            }
+          </div>
+        </div>
+      </section>
+
+      <Carousel client:load slides={slides} labels={copy.carousel} />
+      {data.credits && <p class="credits">{data.credits}</p>}
+
+      <dl class="facts">
+        {
+          facts.map((fact) => (
+            <div>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      {/* Each h2 of the Markdown body opens a chapter; the key figures close the list. */}
+      <section class="chapters subheads">
+        <Content />
+        <h2>{copy.numbers[0]}<em>{copy.numbers[1]}</em></h2>
+        <dl class="stats">
+          {
+            data.stats.map((stat) => (
+              <div>
+                <dt>{stat.label}</dt>
+                <dd class="outline-no">{stat.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <blockquote class="pull-quote"><p>{lang === 'de' ? `„${data.quote}“` : `“${data.quote}”`}</p></blockquote>
+
+      <nav class="pager" aria-label={copy.pager}>
+        <a class="pager-prev" href={prev.href}>
+          <span class="pager-arrow" aria-hidden="true">←</span>
+          <span class="pager-text">
+            <span class="kicker">{copy.prev} · {prev.no}</span>
+            <span class="pager-title">{prev.title}</span>
+          </span>
+        </a>
+        <a class="pager-next" href={next.href}>
+          <span class="pager-text">
+            <span class="kicker">{copy.next} · {next.no}</span>
+            <span class="pager-title">{next.title}</span>
+          </span>
+          <span class="pager-arrow" aria-hidden="true">→</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <section class="cta on-dark">
+    <div class="wrap">
+      <div class="cta-row">
+        <h2>{copy.cta[0]}<br /><span>{copy.cta[1]}</span></h2>
+        <div class="cta-copy">
+          <p>{copy.ctaText}</p>
+          <a class="pill pill-ink" href={`mailto:${site.email}`}>{t.startProject} <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <Footer lang={lang} link={{ label: t.allProjects, href: workHref }} />
+    </div>
+  </section>
+  <LegalDialogs lang={lang} />
+</Base>
+
+<style>
+  .project-hero {
+    padding: var(--block) 0;
+  }
+  .back {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .project-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5) var(--space-7);
+    align-items: end;
+    padding-top: var(--block);
+  }
+  .project-title-row {
+    display: flex;
+    gap: clamp(var(--space-4), 2vw, var(--space-6));
+    align-items: flex-end;
+    min-width: 0;
+  }
+  .project-no {
+    font-size: clamp(6rem, 13vw, 12.5rem);
+    flex: none;
+  }
+  .project-title {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(3.5rem, 8.5vw, 8.5rem);
+    line-height: 0.86;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: var(--ink-soft);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  /*
+   * Optical kerning for "MK / NIKOLSDORF": the M–K pair is tightened until "MK" is exactly as wide
+   * as "NIK" in the line below, so the two K stand on top of each other. The value follows from
+   * Anton's letter widths (N + I − M) and the title's own -0.01em tracking.
+   */
+  .project-title[data-project='mk-nikolsdorf']::first-letter {
+    letter-spacing: -0.0415em;
+  }
+  /*
+   * Wraps between words, at hyphens and at soft hyphens only — German compounds carry one
+   * between their parts ("Diplom­arbeit" in the project file) so they never break mid-syllable.
+   */
+  .project-kind {
+    font-size: 0.82em;
+    overflow-wrap: normal;
+    hyphens: manual;
+  }
+  .project-lead {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+    max-width: 460px;
+  }
+  .project-lead p {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(1.375rem, 2.2vw, 1.875rem);
+    line-height: 1.2;
+    text-wrap: pretty;
+  }
+  .credits {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 var(--space-6);
+    border-bottom: 1px solid var(--ink);
+    margin: var(--block) 0 0;
+  }
+  .facts div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--ink);
+  }
+  .facts dt {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--petrol);
+  }
+  .facts dd {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .chapters {
+    --chapter-gap: clamp(var(--space-7), 5vw, var(--space-8));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--space-7);
+    padding-top: var(--section);
+    counter-reset: chapter;
+  }
+  .chapters > :global(*) {
+    /* about 65 characters per line */
+    max-width: 62ch;
+    margin: 0 0 var(--space-4);
+    font-size: 1rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+  .chapters > :global(:last-child) {
+    margin-bottom: 0;
+  }
+  .chapters > :global(h2) {
+    counter-increment: chapter;
+    margin: var(--chapter-gap) 0 var(--space-4);
+    font-size: clamp(2.5rem, 4.2vw, 4rem);
+    /* overrides the body text line height set for all chapter children */
+    line-height: 0.9;
+  }
+  .chapters > :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .chapters > :global(h2)::before {
+    content: counter(chapter, decimal-leading-zero);
+    display: block;
+    margin-bottom: var(--space-2);
+    font-family: var(--sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+  .chapters > :global(ul) {
+    list-style: none;
+    padding-left: 0;
+  }
+  .chapters :global(li + li) {
+    margin-top: var(--space-3);
+  }
+  .chapters :global(code) {
+    font-size: 0.88em;
+    background: var(--sand);
+    padding: 1px var(--space-1);
+  }
+  .chapters > :global(h2 + *) {
+    border-top: 1px solid var(--line);
+    padding-top: var(--space-4);
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+  .stats div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-3);
+  }
+  .stats dt {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .stats dd {
+    margin: 0;
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    line-height: 0.9;
+  }
+
+  .pull-quote {
+    margin: var(--section) 0 0;
+    padding-top: var(--block);
+    border-top: 1px solid var(--ink);
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4.6vw, 4.25rem);
+    line-height: 1.05;
+  }
+  .pull-quote p {
+    margin: 0;
+    max-width: 1000px;
+    text-wrap: balance;
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    margin: var(--section) 0;
+  }
+  .pager a {
+    display: flex;
+    align-items: center;
+    gap: clamp(var(--space-3), 2vw, var(--space-5));
+    padding-block: clamp(var(--space-5), 3vw, var(--space-6));
+    min-width: 0;
+  }
+  .pager-prev {
+    padding-right: clamp(var(--space-3), 2vw, var(--space-5));
+    border-right: 1px solid var(--line);
+  }
+  .pager-next {
+    justify-content: flex-end;
+    padding-left: clamp(var(--space-3), 2vw, var(--space-5));
+    text-align: right;
+  }
+  .pager-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .pager-text .kicker {
+    color: var(--muted);
+  }
+  .pager-title {
+    font-family: var(--serif);
+    font-size: clamp(1.375rem, 3vw, 2.75rem);
+    line-height: 1;
+  }
+  .pager-arrow {
+    width: clamp(3rem, 5vw, 4rem);
+    height: clamp(3rem, 5vw, 4rem);
+    border-radius: 50%;
+    border: 1px solid var(--ink);
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+    flex: none;
+    transition: transform 0.1s ease-out;
+  }
+  .pager a:active .pager-arrow {
+    transform: scale(0.97);
+  }
+  .pager-next .pager-arrow {
+    background: var(--petrol);
+    border-color: var(--petrol);
+    color: #fff;
+  }
+
+  .cta {
+    background: var(--petrol);
+    color: #fff;
+    padding: var(--section) 0 0;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: var(--space-6);
+    padding-bottom: var(--space-8);
+  }
+  .cta h2 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(3.25rem, 7vw, 7rem);
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .cta h2 span {
+    color: var(--ink);
+  }
+  .cta-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    align-items: flex-start;
+    max-width: 420px;
+  }
+  .cta-copy p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 560px) {
+    .facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 900px) {
+    .facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    /* Chapter heading left, its body right — the heading shares a row with the block that follows it. */
+    .chapters {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    }
+    .chapters > :global(*) {
+      grid-column: 2;
+    }
+    .chapters > :global(h2) {
+      grid-column: 1;
+      margin-bottom: 0;
+    }
+    .chapters > :global(h2 + *) {
+      margin-top: var(--chapter-gap);
+    }
+    .chapters > :global(h2:first-child + *) {
+      margin-top: 0;
+    }
+  }
+  @media (min-width: 1100px) {
+    .project-head {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    }
+  }
+</style>

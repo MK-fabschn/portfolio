@@ -1,0 +1,328 @@
+---
+import { Image } from 'astro:assets';
+import { site } from '../../data/site';
+import { homeImage } from '../../lib/images';
+import { printPath, ui, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+  en: {
+    status: 'AVAILABLE FOR FREELANCE',
+    tagline: 'WEB · APP · GRAPHIC',
+    hello: 'HELLO, I’M',
+    text: 'I design and build websites, apps and visual identities — from the first sketch to clean, performant code.',
+    work: 'See my work',
+    talk: 'Let’s talk',
+    print: 'Print edition',
+    signature: `Signature of ${site.name}`,
+    portrait: `Portrait of ${site.name}`,
+    ring: 'AVAILABLE WORLDWIDE • AVAILABLE WORLDWIDE •',
+    badge: ['OPEN FOR', 'PROJECTS'],
+  },
+  de: {
+    status: 'VERFÜGBAR FÜR FREELANCE',
+    tagline: 'WEB · APP · GRAFIK',
+    hello: 'HALLO, ICH BIN',
+    text: 'Ich gestalte und entwickle Websites, Apps und visuelle Identitäten — von der ersten Skizze bis zum sauberen, performanten Code.',
+    work: 'Meine Projekte',
+    talk: 'Kontakt aufnehmen',
+    print: 'Print-Ausgabe',
+    signature: `Unterschrift von ${site.name}`,
+    portrait: `Porträt von ${site.name}`,
+    ring: 'WELTWEIT VERFÜGBAR • WELTWEIT VERFÜGBAR •',
+    badge: ['OFFEN FÜR', 'PROJEKTE'],
+  },
+}[lang];
+
+const portrait = homeImage('portrait');
+const signature = homeImage('signature');
+const [firstName, ...lastName] = site.name.split(' ');
+---
+
+<section id="top" class="hero">
+  <div class="hero-top">
+    <span class="hero-status">{copy.status} <span class="hero-status-rule"></span></span>
+    <span>{copy.tagline}</span>
+  </div>
+  <h1 class="hero-title">Portfolio</h1>
+
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="hero-hello">{copy.hello}</div>
+      <div class="hero-name">{firstName}<br />{lastName.join(' ')}</div>
+      <div class="hero-role">{ui[lang].role}</div>
+      <p class="hero-text">{copy.text}</p>
+      <div class="hero-actions">
+        <a class="pill pill-petrol" href="#work">{copy.work} <span aria-hidden="true">↗</span></a>
+        <a class="hero-talk" href="#contact">{copy.talk}</a>
+      </div>
+      <a class="pill hero-print" href={printPath[lang]}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 6.5C10 5 7 4.5 3 4.5v13c4 0 7 .5 9 2 2-1.5 5-2 9-2v-13c-4 0-7 .5-9 2Zm0 0v13"></path>
+        </svg>
+        {copy.print} <span aria-hidden="true">→</span>
+      </a>
+      {signature && <Image class="hero-signature" src={signature} alt={copy.signature} width={480} />}
+    </div>
+
+    <div class:list={['hero-visual', { 'has-portrait': portrait }]}>
+      <div class="hero-circle"></div>
+      {
+        portrait && (
+          <Image
+            class="hero-portrait"
+            src={portrait}
+            alt={copy.portrait}
+            widths={[480, 720, 1080]}
+            sizes="(min-width: 860px) 45vw, 90vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        )
+      }
+      <div class="hero-badge">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <path id="badge-circle" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"></path>
+          </defs>
+          <text>
+            <textPath href="#badge-circle" textLength="236" lengthAdjust="spacing">{copy.ring}</textPath>
+          </text>
+        </svg>
+        <span>{copy.badge[0]}<br />{copy.badge[1]}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-top: var(--space-5);
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    margin-bottom: var(--space-2);
+  }
+  .hero-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .hero-status-rule {
+    display: inline-block;
+    width: 48px;
+    height: 1px;
+    background: var(--petrol);
+  }
+  .hero-title {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(5.5rem, 19.5vw, 18rem);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    gap: var(--space-5);
+    align-items: end;
+    /* Not spacing but overlap: the grid is pulled up under the headline, and the copy
+       is pushed back down by about the same amount so only the circle tucks under it. */
+    --overlap: clamp(40px, 9vw, 150px);
+    margin-top: calc(-1 * var(--overlap));
+    position: relative;
+  }
+  .hero-copy {
+    padding-top: clamp(60px, 10vw, 170px);
+    padding-bottom: var(--space-7);
+    position: relative;
+    z-index: 3;
+    container-type: inline-size;
+    min-width: 0;
+  }
+  .hero-hello {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    margin-bottom: var(--space-2);
+  }
+  .hero-name {
+    font-family: var(--grotesk);
+    font-weight: 800;
+    font-size: min(13.5cqw, 8rem);
+    line-height: 0.75;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .hero-role {
+    margin-top: var(--space-4);
+    color: var(--petrol);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .hero-text {
+    max-width: 400px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: var(--space-4) 0 0;
+    text-wrap: pretty;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+    margin-top: var(--space-6);
+  }
+  .hero-talk {
+    padding: var(--space-4) var(--space-1);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--ink);
+  }
+  .hero-print {
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-size: 0.875rem;
+  }
+  .hero-print svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  @media (hover: hover) {
+    .hero-print:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+  .hero-signature {
+    width: 240px;
+    height: 80px;
+    margin-top: var(--space-5);
+    object-fit: contain;
+    object-position: left center;
+  }
+  .hero-visual {
+    position: relative;
+    min-height: clamp(420px, 52vw, 680px);
+  }
+  .hero-circle {
+    position: absolute;
+    left: 8%;
+    right: 4%;
+    bottom: 0;
+    aspect-ratio: 1 / 1;
+    max-height: 88%;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--petrol);
+  }
+  .hero-portrait {
+    position: absolute;
+    left: 10%;
+    top: 0;
+    width: 84%;
+    height: 100%;
+    z-index: 2;
+    object-fit: cover;
+    object-position: center top;
+  }
+  .hero-badge {
+    position: absolute;
+    right: 0;
+    top: 34%;
+    z-index: 4;
+    width: 124px;
+    height: 124px;
+    border-radius: 50%;
+    background: var(--paper);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 1px var(--petrol) inset;
+  }
+  .hero-badge svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    animation: spin 18s linear infinite;
+  }
+  .hero-badge text {
+    font-family: var(--sans);
+    font-size: 7.2px;
+    font-weight: 700;
+    letter-spacing: 1.55px;
+    fill: var(--ink);
+  }
+  .hero-badge span {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--petrol);
+    text-align: center;
+    line-height: 1.25;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  /* Side by side the portrait would also tuck under the headline and cover the foot of the L,
+     so it starts where the headline ends; the transparent top of the cut-out leaves the gap. */
+  @media (min-width: 896px) {
+    .hero-portrait {
+      top: var(--overlap);
+      height: calc(100% - var(--overlap));
+    }
+  }
+  /* Below this width the grid is a single column: copy first, visual underneath. */
+  @media (max-width: 895px) {
+    .hero-copy {
+      padding-bottom: 0;
+    }
+    /* Without a portrait the visual is just the circle, so it takes exactly the circle's height. */
+    .hero-visual:not(.has-portrait) {
+      min-height: 0;
+      aspect-ratio: 100 / 88;
+    }
+    .hero-visual:not(.has-portrait) .hero-circle {
+      max-height: none;
+    }
+  }
+  /* On phones the two labels would wrap into each other; the second one repeats the role line below. */
+  @media (max-width: 479px) {
+    .hero-top {
+      margin-bottom: var(--space-4);
+    }
+    .hero-top > span:last-child {
+      display: none;
+    }
+  }
+</style>

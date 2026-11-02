@@ -1,0 +1,47 @@
+---
+import Base from './Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Footer from '../components/Footer.astro';
+import { legalDoc, legalPaths, type LegalKey } from '../components/legal/docs';
+import { homePath, ui, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  doc: LegalKey;
+}
+
+const { lang, doc } = Astro.props;
+const { title, Content } = legalDoc(lang, doc);
+const t = ui[lang];
+---
+
+<Base lang={lang} title={title}>
+  <div class="wrap">
+    <PageHeader lang={lang} paths={legalPaths(doc)} />
+    <main id="main" class="legal legal-page">
+      <div class="rule-row">
+        <a href={homePath[lang]}>← {t.home.toUpperCase()}</a>
+        <span>{t.legal.toUpperCase()}</span>
+      </div>
+      <Content heading="h1" />
+    </main>
+  </div>
+  <div class="legal-footer on-dark">
+    <div class="wrap">
+      <Footer lang={lang} link={{ label: t.allProjects, href: `${homePath[lang]}#work` }} />
+    </div>
+  </div>
+</Base>
+
+<style>
+  .rule-row a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .legal-footer {
+    background: var(--petrol);
+  }
+  .legal-footer :global(.site-footer) {
+    border-top: 0;
+  }
+</style>

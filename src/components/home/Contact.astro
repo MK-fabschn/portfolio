@@ -1,0 +1,153 @@
+---
+import Footer from '../Footer.astro';
+import { site } from '../../data/site';
+import { ui, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+
+const copy = {
+  en: {
+    kicker: 'LET’S CREATE',
+    title: ['Something', 'great.'],
+    text: 'Have a website, app or brand in mind? Tell me about it — I usually reply within a day.',
+    email: 'EMAIL',
+    basedIn: 'BASED IN',
+  },
+  de: {
+    kicker: 'GEMEINSAM GESTALTEN',
+    title: ['Etwas', 'Großes.'],
+    text: 'Sie planen eine Website, App oder Marke? Erzählen Sie mir davon — ich antworte meist innerhalb eines Tages.',
+    email: 'E-MAIL',
+    basedIn: 'STANDORT',
+  },
+}[lang];
+
+const socials = site.socials.filter((social) => social.url);
+---
+
+<section id="contact" class="contact on-dark">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div>
+        <div class="contact-kicker">{copy.kicker}</div>
+        <h2 class="contact-title">{copy.title[0]}<br /><span>{copy.title[1]}</span></h2>
+        <p class="contact-text">{copy.text}</p>
+        <a class="pill pill-ink contact-cta" href={`mailto:${site.email}`}>
+          {t.startProject} <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+      <div class="contact-list">
+        <a class="contact-row" href={`mailto:${site.email}`}><span>{copy.email}</span>{site.email}</a>
+        <div class="contact-row"><span>{copy.basedIn}</span>{t.location}</div>
+        {
+          socials.length > 0 && (
+            <div class="contact-socials">
+              {socials.map((social) => (
+                <a href={social.url} rel="noopener noreferrer">
+                  {social.label}
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </div>
+    <Footer lang={lang} link={{ label: t.backToTop, href: '#top' }} />
+  </div>
+</section>
+
+<style>
+  .contact {
+    background: var(--petrol);
+    color: #fff;
+    padding: var(--section) 0 0;
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: var(--space-7);
+    align-items: end;
+    padding-bottom: var(--space-8);
+  }
+  .contact-kicker {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    margin-bottom: var(--space-4);
+  }
+  .contact-title {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(3.5rem, 8vw, 8rem);
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .contact-title span {
+    color: var(--ink);
+  }
+  .contact-text {
+    margin: var(--space-5) 0 0;
+    max-width: 420px;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .contact-cta {
+    margin-top: var(--space-6);
+  }
+  .contact-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--paper);
+  }
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-4);
+    padding: var(--space-5) 0;
+    border-bottom: 1px solid var(--paper);
+    color: #fff;
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    overflow-wrap: anywhere;
+  }
+  @media (hover: hover) {
+    a.contact-row:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    .contact-socials a:hover {
+      background: var(--paper);
+      color: var(--ink);
+    }
+  }
+  .contact-row span {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    align-self: center;
+  }
+  .contact-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding-top: var(--space-5);
+  }
+  .contact-socials a {
+    border: 1px solid var(--paper);
+    color: var(--paper);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding: 0 var(--space-4);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: background-color 0.2s, color 0.2s;
+  }
+</style>

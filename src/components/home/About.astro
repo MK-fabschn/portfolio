@@ -1,0 +1,189 @@
+---
+import { Image } from 'astro:assets';
+import { homeImage } from '../../lib/images';
+import type { Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+  en: {
+    chapter: 'CHAPTER 03 — ABOUT',
+    tagline: 'PROFILE',
+    title: 'About',
+    script: 'me',
+    quote: ['“I build digital products that are not only beautiful, but ', 'functional, fast and built to last.', '”'],
+    story: 'THE STORY',
+    lead: 'Based in East Tyrol, Austria, working worldwide. I combine a designer’s eye with an engineer’s discipline — pixel-perfect layouts, accessible interfaces and brand systems that scale from app icon to billboard.',
+    more: 'Because I design and develop myself, nothing gets lost between mockup and build — what you approve is exactly what goes live.',
+    skillsTitle: 'SKILLS',
+    skills: ['Web development', 'App development', 'UI/UX design', 'Graphic design', 'Branding', 'Motion'],
+  },
+  de: {
+    chapter: 'KAPITEL 03 — ÜBER MICH',
+    tagline: 'PROFIL',
+    title: 'Über',
+    script: 'mich',
+    quote: ['„Ich baue digitale Produkte, die nicht nur schön sind, sondern ', 'funktional, schnell und langlebig.', '“'],
+    story: 'DIE GESCHICHTE',
+    lead: 'Zu Hause in Osttirol, tätig weltweit. Ich verbinde den Blick eines Designers mit der Disziplin eines Entwicklers — pixelgenaue Layouts, barrierearme Interfaces und Markensysteme, die vom App-Icon bis zum Plakat tragen.',
+    more: 'Weil ich selbst gestalte und entwickle, geht zwischen Entwurf und Umsetzung nichts verloren — was Sie freigeben, geht genau so online.',
+    skillsTitle: 'KÖNNEN',
+    skills: ['Webentwicklung', 'App-Entwicklung', 'UI/UX-Design', 'Grafikdesign', 'Branding', 'Motion'],
+  },
+}[lang];
+
+const skillValues = [95, 90, 90, 85, 85, 70];
+const skills = copy.skills.map((name, index) => ({ name, value: skillValues[index] }));
+
+const photo = homeImage('about');
+---
+
+<section id="about" class="about">
+  <div class="rule-row">
+    <span>{copy.chapter}</span><span>{copy.tagline}</span>
+  </div>
+  <div class="section-intro">
+    <h2 class="display">{copy.title}<span class="display-script">{copy.script}</span></h2>
+    <p class="about-quote">{copy.quote[0]}<em>{copy.quote[1]}</em>{copy.quote[2]}</p>
+  </div>
+  <div class="about-grid">
+    <figure class="about-photo">
+      {photo && <Image src={photo} alt="" widths={[400, 600, 900]} sizes="(min-width: 700px) 33vw, 90vw" />}
+    </figure>
+    <div class="about-story">
+      <span class="kicker">{copy.story}</span>
+      <p>{copy.lead}</p>
+      <p class="about-more">{copy.more}</p>
+    </div>
+    <aside class="about-skills">
+      <span class="kicker">{copy.skillsTitle}</span>
+      <ul>
+        {
+          skills.map((skill) => (
+            <li>
+              <span>{skill.name.toUpperCase()}</span>
+              <span class="skill-value">{skill.value}%</span>
+              <span class="skill-track">
+                <span style={`width:${skill.value}%`} />
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<style>
+  /* Last light section before the petrol band, so it also closes with a section's worth of space. */
+  .about {
+    padding: var(--section) 0;
+  }
+  .about-quote {
+    margin: 0;
+    max-width: 520px;
+    font-family: var(--serif);
+    font-size: clamp(1.625rem, 2.8vw, 2.375rem);
+    line-height: 1.15;
+    text-wrap: pretty;
+  }
+  .about-quote em {
+    color: var(--petrol);
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7) var(--space-7);
+    border-top: 1px solid var(--ink);
+    padding-top: var(--space-7);
+    align-items: start;
+  }
+  .about-photo {
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--sand);
+  }
+  .about-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .about-story {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  .about-story .kicker {
+    color: var(--petrol);
+  }
+  .about-story p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+  .about-more {
+    color: var(--muted);
+  }
+  .about-skills {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .about-skills ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .about-skills li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 40px;
+    gap: var(--space-2) var(--space-3);
+    align-items: center;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .skill-value {
+    color: var(--muted);
+    text-align: right;
+  }
+  .skill-track {
+    grid-column: 1 / -1;
+    height: 2px;
+    background: var(--line);
+    position: relative;
+    display: block;
+  }
+  .skill-track span {
+    position: absolute;
+    left: 0;
+    top: -1px;
+    height: 4px;
+    background: var(--petrol);
+  }
+  @media (min-width: 700px) {
+    .about-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .about-skills {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (min-width: 1100px) {
+    .about-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+    .about-skills {
+      grid-column: auto;
+    }
+  }
+</style>

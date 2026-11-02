@@ -1,0 +1,71 @@
+---
+import ProjectGrid, { type ProjectCard } from '../ProjectGrid';
+import { responsiveImage } from '../../lib/images';
+import { categoryLabels, getProjects, projectHref, projectNo, type Category } from '../../lib/projects';
+import type { Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+  en: {
+    chapter: 'CHAPTER 02 — WORK',
+    tagline: 'WEB · APP · GRAPHIC',
+    title: 'Projects',
+    script: 'recent work',
+    grid: { filterBy: 'FILTER BY', all: 'All', loadMore: 'Load more' },
+  },
+  de: {
+    chapter: 'KAPITEL 02 — PROJEKTE',
+    tagline: 'WEB · APP · GRAFIK',
+    title: 'Projekte',
+    script: 'aktuelle Arbeiten',
+    grid: { filterBy: 'FILTERN NACH', all: 'Alle', loadMore: 'Mehr laden' },
+  },
+}[lang];
+
+const projects = await getProjects(lang);
+
+const cards: ProjectCard[] = await Promise.all(
+  projects.map(async (project, index) => ({
+    href: projectHref(lang, project.id),
+    no: projectNo(index),
+    title: project.data.title,
+    summary: project.data.summary,
+    label: project.data.label,
+    categories: project.data.categories,
+    image: await responsiveImage(project.data.cover.src, [400, 600, 800], {
+      aspect: 4 / 5,
+      position: project.data.cover.position,
+    }),
+  })),
+);
+
+// Only offer filters that actually match a project.
+const used = new Set(projects.flatMap((project) => project.data.categories));
+const filters = (Object.keys(categoryLabels[lang]) as Category[])
+  .filter((key) => used.has(key))
+  .map((key) => ({ key, label: categoryLabels[lang][key] }));
+---
+
+<section id="work" class="work">
+  <div class="rule-row">
+    <span>{copy.chapter}</span><span>{copy.tagline}</span>
+  </div>
+  <div class="work-intro">
+    <h2 class="display">{copy.title}<span class="display-script">{copy.script}</span></h2>
+  </div>
+  <ProjectGrid client:visible projects={cards} filters={filters} labels={copy.grid} />
+</section>
+
+<style>
+  .work {
+    padding-top: var(--section);
+  }
+  .work-intro {
+    padding: var(--block) 0;
+  }
+</style>

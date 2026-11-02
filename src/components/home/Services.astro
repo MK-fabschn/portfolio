@@ -1,0 +1,216 @@
+---
+import { site } from '../../data/site';
+import type { Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+  en: {
+    chapter: 'CHAPTER 01 — SERVICES',
+    tagline: 'WHAT I CAN DO FOR YOU',
+    title: 'What I',
+    script: 'can do',
+    quote: '“One person across code and design — so brand, interface and build speak the same language.”',
+    services: [
+      {
+        kicker: 'BUILD',
+        title: 'Web & App',
+        accent: 'Development',
+        text: 'Fast, responsive websites and native-feeling iOS & Android apps. Clean, scalable code — from content-managed sites to cross-platform products that feel at home on every device.',
+        tags: ['WEBSITES', 'IOS & ANDROID', 'CMS', 'E-COMMERCE'],
+      },
+      {
+        kicker: 'SHAPE',
+        title: 'UI/UX',
+        accent: 'Design',
+        text: 'Research-led interfaces, clickable prototypes and design systems. Every screen is planned around the people who use it — clear, intuitive and accessible.',
+        tags: ['PROTOTYPING', 'DESIGN SYSTEMS', 'USER FLOWS'],
+      },
+      {
+        kicker: 'EXPRESS',
+        title: 'Graphic',
+        accent: '& Branding',
+        text: 'Logos, visual identities, print and campaign visuals that give brands a clear, recognisable voice — consistent from app icon to poster.',
+        tags: ['LOGO', 'IDENTITY', 'PRINT', 'SOCIAL'],
+      },
+    ],
+  },
+  de: {
+    chapter: 'KAPITEL 01 — LEISTUNGEN',
+    tagline: 'WAS ICH FÜR SIE TUN KANN',
+    title: 'Was ich',
+    script: 'kann',
+    quote: '„Eine Person für Code und Design — damit Marke, Interface und Umsetzung dieselbe Sprache sprechen.“',
+    services: [
+      {
+        kicker: 'BAUEN',
+        title: 'Web & App',
+        accent: 'Entwicklung',
+        text: 'Schnelle, responsive Websites und iOS- & Android-Apps, die sich nativ anfühlen. Sauberer, skalierbarer Code — von CMS-gestützten Websites bis zu plattformübergreifenden Produkten, die auf jedem Gerät zu Hause sind.',
+        tags: ['WEBSITES', 'IOS & ANDROID', 'CMS', 'E-COMMERCE'],
+      },
+      {
+        kicker: 'GESTALTEN',
+        title: 'UI/UX',
+        accent: 'Design',
+        text: 'Interfaces auf Basis von Recherche, klickbare Prototypen und Designsysteme. Jeder Screen wird für die Menschen geplant, die ihn nutzen — klar, intuitiv und barrierearm.',
+        tags: ['PROTOTYPING', 'DESIGNSYSTEME', 'USER FLOWS'],
+      },
+      {
+        kicker: 'PRÄGEN',
+        title: 'Grafik',
+        accent: '& Branding',
+        text: 'Logos, visuelle Identitäten, Print und Kampagnen, die Marken eine klare, wiedererkennbare Stimme geben — durchgängig vom App-Icon bis zum Plakat.',
+        tags: ['LOGO', 'IDENTITÄT', 'PRINT', 'SOCIAL'],
+      },
+    ],
+  },
+}[lang];
+---
+
+<section id="services" class="services on-dark">
+  <div class="wrap">
+    <div class="rule-row">
+      <span>{copy.chapter}</span><span>{copy.tagline}</span>
+    </div>
+    <div class="section-intro">
+      <h2 class="display">{copy.title}<span class="display-script">{copy.script}</span></h2>
+      <div class="services-quote">
+        <p>{copy.quote}</p>
+        <span class="kicker">— {site.name.toUpperCase()}</span>
+      </div>
+    </div>
+    <div class="services-list">
+      {
+        copy.services.map((service, index) => (
+          <article class="service">
+            <div class="service-no">
+              <span class="service-digits">{String(index + 1).padStart(2, '0')}</span>
+              <span class="kicker service-kicker">{service.kicker}</span>
+            </div>
+            <h3 class="subhead service-title">
+              {service.title}
+              <em>{service.accent}</em>
+            </h3>
+            <div class="service-body">
+              <p>{service.text}</p>
+              <ul class="service-tags">
+                {service.tags.map((tag) => (
+                  <li>{tag}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .services {
+    background: var(--ink);
+    color: var(--cream);
+    padding: var(--section) 0;
+  }
+  .services-quote {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 460px;
+  }
+  .services-quote p {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.2;
+    text-wrap: pretty;
+  }
+  .services-quote .kicker,
+  .service-kicker {
+    color: var(--stone);
+  }
+  .services-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--cream);
+  }
+  .service {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5) var(--space-7);
+    padding: var(--block) 0;
+    border-bottom: 1px solid var(--ink-line);
+    align-items: start;
+  }
+  .service-no {
+    display: flex;
+    gap: var(--space-5);
+    align-items: flex-start;
+  }
+  .service-digits {
+    font-family: var(--display);
+    font-size: clamp(5rem, 9vw, 8.25rem);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--aqua);
+  }
+  .service-kicker {
+    padding-top: var(--space-2);
+    writing-mode: vertical-rl;
+  }
+  .service-title {
+    margin: 0;
+    font-size: clamp(2.5rem, 4.2vw, 4rem);
+  }
+  .service-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  .service-body p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: var(--fog);
+    text-wrap: pretty;
+  }
+  .service-tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .service-tags li {
+    border: 1px solid var(--ink-line);
+    padding: var(--space-2) var(--space-3);
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+    white-space: nowrap;
+  }
+  @media (min-width: 700px) {
+    .service {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    }
+    .service-body {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (min-width: 1100px) {
+    .service {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.1fr) minmax(0, 1.3fr);
+    }
+    .service-body {
+      grid-column: auto;
+    }
+  }
+</style>

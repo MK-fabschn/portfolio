@@ -1,0 +1,28 @@
+---
+import { site } from '../data/site';
+import { legalDocs } from './legal/docs';
+import { ui, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  /** Last link in the row: "Back to top" on the home page, "All projects" elsewhere. */
+  link: { label: string; href: string };
+}
+
+const { lang, link } = Astro.props;
+---
+
+<footer class="site-footer">
+  <span>© {new Date().getFullYear()} {site.name}</span>
+  <nav aria-label={ui[lang].legal}>
+    {/* Real pages; where LegalDialogs is present the links open the dialog instead. */}
+    {
+      legalDocs[lang].map((doc) => (
+        <a href={doc.href} data-legal={doc.key}>
+          {doc.title}
+        </a>
+      ))
+    }
+    <a href={link.href}>{link.label}</a>
+  </nav>
+</footer>

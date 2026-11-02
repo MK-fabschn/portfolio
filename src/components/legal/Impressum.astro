@@ -1,0 +1,37 @@
+---
+import { site } from '../../data/site';
+
+interface Props {
+  /** `h1` on the standalone page, `h2` inside the dialog. */
+  heading?: 'h1' | 'h2';
+}
+
+const { heading: Heading = 'h2' } = Astro.props;
+---
+
+{/* German counterpart of LegalNotice.astro. Private, non-commercial site: small disclosure under § 25 (5) MedienG only. */}
+<Heading class="legal-title" id="legal-notice-title">Impressum</Heading>
+
+<h3>Offenlegung gemäß § 25 Abs. 5 Mediengesetz (MedienG)</h3>
+<p>
+  Medieninhaber: {site.name}<br />
+  Wohnort: {site.residence}, Osttirol, Österreich<br />
+  E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+</p>
+<p>
+  Gegenstand: private, nicht kommerzielle Präsentation meiner eigenen Arbeiten in Web-, App- und Grafikdesign. Über
+  diese Website werden keine Waren oder Dienstleistungen angeboten.
+</p>
+
+<h3>Haftung für Inhalte und Links</h3>
+<p>
+  Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. Für ihre Richtigkeit, Vollständigkeit und Aktualität
+  wird keine Gewähr übernommen. Für die Inhalte verlinkter externer Seiten sind ausschließlich deren Betreiber
+  verantwortlich.
+</p>
+
+<h3>Urheberrecht</h3>
+<p>
+  Alle Inhalte (Texte, Bilder, Grafiken, Designs) unterliegen dem österreichischen Urheberrecht. Jede Verwertung
+  außerhalb der Grenzen des Urheberrechts bedarf der schriftlichen Zustimmung.
+</p>

@@ -1,0 +1,51 @@
+# Portfolio fabian-trutschnig.dev auf dem netcup-VPS.
+# Läuft hinter dem Traefik aus dem MK-Nikolsdorf-Stack (externes Netz "web").
+# Das Zertifikat kommt vom Traefik-Resolver "cloudflare" (DNS-01), siehe DEPLOYMENT.md.
+# Router- und Middleware-Namen tragen das Präfix "portfolio", damit sie nicht mit
+# den MK-Routern ("web", "www", …) kollidieren.
+
+services:
+  portfolio:
+    build: .
+    image: portfolio-web:latest
+    container_name: portfolio_web
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 64m
+    logging:
+      driver: local
+      options:
+        max-size: 1m
+        max-file: "2"
+    networks:
+      - web
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: web
+      traefik.http.routers.portfolio.rule: Host(`fabian-trutschnig.dev`)
+      traefik.http.routers.portfolio.entrypoints: websecure
+      traefik.http.routers.portfolio.tls: "true"
+      traefik.http.routers.portfolio.tls.certresolver: cloudflare
+      traefik.http.routers.portfolio.tls.domains[0].main: fabian-trutschnig.dev
+      traefik.http.routers.portfolio.tls.domains[0].sans: "*.fabian-trutschnig.dev"
+      traefik.http.routers.portfolio.service: portfolio
+      traefik.http.services.portfolio.loadbalancer.server.port: "80"
+      # www → Apex (301), nutzt das Wildcard-Zertifikat.
+      traefik.http.routers.portfolio-www.rule: Host(`www.fabian-trutschnig.dev`)
+      traefik.http.routers.portfolio-www.entrypoints: websecure
+      traefik.http.routers.portfolio-www.tls: "true"
+      traefik.http.routers.portfolio-www.service: portfolio
+      traefik.http.routers.portfolio-www.middlewares: portfolio-www-redirect
+      traefik.http.middlewares.portfolio-www-redirect.redirectregex.regex: ^https://www\.fabian-trutschnig\.dev/(.*)
+      traefik.http.middlewares.portfolio-www-redirect.redirectregex.replacement: https://fabian-trutschnig.dev/$${1}
+      traefik.http.middlewares.portfolio-www-redirect.redirectregex.permanent: "true"
+
+networks:
+  web:
+    external: true

@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+import SiteNav from '../SiteNav';
+import Hero from './Hero.astro';
+import Services from './Services.astro';
+import Work from './Work.astro';
+import About from './About.astro';
+import Contact from './Contact.astro';
+import LegalDialogs from '../legal/LegalDialogs.astro';
+import { navLinks } from '../../data/site';
+import { homePath, langLink, ui, type Lang } from '../../i18n';
+import monogramUrl from '../../assets/monogram.svg?url';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+---
+
+<Base lang={lang}>
+  <SiteNav
+    client:load
+    logoSrc={monogramUrl}
+    role={t.role}
+    links={navLinks(lang)}
+    langLink={langLink(lang, homePath)}
+    labels={{ home: t.home, mainNav: t.mainNav, mainMenu: t.mainMenu, menu: t.menu }}
+  />
+  <main id="main">
+    <div class="wrap">
+      <Hero lang={lang} />
+    </div>
+    <Services lang={lang} />
+    <div class="wrap">
+      <Work lang={lang} />
+      <About lang={lang} />
+    </div>
+    <Contact lang={lang} />
+  </main>
+  <LegalDialogs lang={lang} />
+</Base>

@@ -1,0 +1,35 @@
+---
+import Brand from './Brand';
+import LangSwitch from './LangSwitch';
+import { navLinks, type Section } from '../data/site';
+import { homePath, langLink, ui, type Lang } from '../i18n';
+import monogramUrl from '../assets/monogram.svg?url';
+
+interface Props {
+  lang: Lang;
+  /** URL of this page in each language, for the language switch. */
+  paths: Record<Lang, string>;
+  /** Home page section to highlight. */
+  current?: Section;
+}
+
+const { lang, paths, current } = Astro.props;
+const t = ui[lang];
+---
+
+<header class="site-header">
+  <Brand logoSrc={monogramUrl} role={t.role} homeLabel={t.home} href={homePath[lang]} />
+  <div class="header-actions">
+    <nav class="nav-links" aria-label={t.mainNav}>
+      {
+        navLinks(lang).map((link) => (
+          <a href={link.href} aria-current={link.id === current ? 'true' : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+    <LangSwitch {...langLink(lang, paths)} />
+    <a class="all-work" href={`${homePath[lang]}#work`}>{t.allWork}</a>
+  </div>
+</header>

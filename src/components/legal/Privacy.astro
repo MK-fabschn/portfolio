@@ -1,0 +1,93 @@
+---
+import { site } from '../../data/site';
+
+interface Props {
+  /** `h1` on the standalone page, `h2` inside the dialog. */
+  heading?: 'h1' | 'h2';
+}
+
+const { heading: Heading = 'h2' } = Astro.props;
+---
+
+{/* <mark> = still to be checked before the site goes live. */}
+<Heading class="legal-title" id="privacy-title">Privacy</Heading>
+<p>
+  Protecting your personal data matters to me. I process data solely on the basis of the applicable law (GDPR, the
+  Austrian Data Protection Act DSG and the Telecommunications Act TKG 2021).
+</p>
+
+<h3>Controller</h3>
+<p>
+  {site.name}, {site.residence}, East Tyrol, Austria<br />
+  E-mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+</p>
+
+<h3>Hosting</h3>
+<p>
+  This website runs on a server provided by netcup GmbH, Karlsruhe, Germany, acting as a processor. The server keeps no
+  access logs. Technical error messages from the server may contain an IP address; they are stored only in small
+  amounts and continuously overwritten. The legal basis is the legitimate interest in running the site securely and
+  reliably (Art. 6(1)(f) GDPR).
+</p>
+
+<h3>Cloudflare</h3>
+<p>
+  All requests to this website pass through the network of Cloudflare, Inc., San Francisco, USA (reverse proxy and
+  content delivery network). Cloudflare processes technically necessary data such as your IP address, the page
+  requested, date and time and browser information in order to deliver the website and protect it from attacks. The
+  legal basis is the legitimate interest in secure and fast delivery (Art. 6(1)(f) GDPR). Cloudflare acts as a
+  processor.
+</p>
+<p>
+  Data may be transferred to the USA in the process. Cloudflare is certified under the EU-US Data Privacy Framework; the
+  transfer is based on the European Commission's adequacy decision (Art. 45 GDPR) and, in addition, on standard
+  contractual clauses. <mark>Cloudflare keeps this data only as long as necessary for operation and security.</mark>
+  For details, see Cloudflare's privacy policy:
+  <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener noreferrer">www.cloudflare.com/privacypolicy</a>
+</p>
+
+<h3>Contact by e-mail</h3>
+<p>
+  If you contact me by e-mail, the details you provide are stored to handle your enquiry and any follow-up questions
+  (Art. 6(1)(f) GDPR). I delete them once your enquiry has been dealt with, unless a statutory retention obligation
+  applies. I do not pass this data on without your consent.
+</p>
+
+<h3>Cookies and local storage</h3>
+<p>
+  This website sets no cookies and stores nothing in your browser (§ 165(3) TKG 2021), so no consent is requested.
+  There are no tracking or marketing services and no analytics tools.
+</p>
+
+<h3>Fonts, scripts and images</h3>
+<p>
+  All fonts, scripts and images are loaded from this domain. Apart from delivery via Cloudflare (see above), opening
+  the website does not create a connection to Google or any other third party.
+</p>
+
+<h3>External links</h3>
+<p>
+  Some project pages link to external websites. Data is only transferred to the respective operator once you click such
+  a link; their privacy policy applies there.
+</p>
+
+<h3>Project screenshots</h3>
+<p>
+  The accounts, names and content visible in the screenshots of the web apps are fictional demo data. No data of real
+  users is shown. The screenshots of the Musikkapelle Nikolsdorf website show members of the band as they appear on the
+  club's public website and are used with permission.
+</p>
+
+<h3>Your rights</h3>
+<p>
+  You have the rights of access, rectification, erasure, restriction of processing and data portability. You can object
+  at any time to processing based on legitimate interest (Art. 21 GDPR). To exercise these rights, simply send me an
+  e-mail. No automated decision-making or profiling takes place.
+</p>
+<p>
+  If you believe that the processing of your data violates data protection law, you can lodge a complaint with the
+  supervisory authority: Austrian Data Protection Authority (Österreichische Datenschutzbehörde), Barichgasse 40–42,
+  1030 Vienna, <a href="https://www.dsb.gv.at" rel="noopener noreferrer">www.dsb.gv.at</a>
+</p>
+
+<p>Last updated: November 2026</p>

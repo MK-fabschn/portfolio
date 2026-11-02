@@ -1,0 +1,9 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ProjectPage from '../../components/ProjectPage.astro';
+import { projectPaths } from '../../lib/projects';
+
+export const getStaticPaths = (() => projectPaths('en')) satisfies GetStaticPaths;
+---
+
+<ProjectPage {...Astro.props} />

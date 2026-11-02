@@ -1,0 +1,36 @@
+---
+import { site } from '../../data/site';
+
+interface Props {
+  /** `h1` on the standalone page, `h2` inside the dialog. */
+  heading?: 'h1' | 'h2';
+}
+
+const { heading: Heading = 'h2' } = Astro.props;
+---
+
+{/* Private, non-commercial site: small disclosure under § 25 (5) MedienG only. */}
+<Heading class="legal-title" id="legal-notice-title">Legal notice</Heading>
+
+<h3>Disclosure under § 25(5) of the Austrian Media Act (MedienG)</h3>
+<p>
+  Media owner: {site.name}<br />
+  Place of residence: {site.residence}, East Tyrol, Austria<br />
+  E-mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+</p>
+<p>
+  Purpose: private, non-commercial presentation of my own work in web, app and graphic design. No goods or services are
+  offered on this website.
+</p>
+
+<h3>Liability for content and links</h3>
+<p>
+  The content of this website has been prepared with the greatest care. No guarantee is given that it is correct,
+  complete or up to date. The operators of linked external sites are solely responsible for their content.
+</p>
+
+<h3>Copyright</h3>
+<p>
+  All content (texts, images, graphics, designs) is subject to Austrian copyright law. Any use beyond the limits of
+  copyright law requires written consent.
+</p>

@@ -1,0 +1,52 @@
+---
+import { legalDocs } from './docs';
+import { ui, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+---
+
+{
+  legalDocs[lang].map(({ key, Content }) => (
+    <dialog class="legal-dialog" id={`dialog-${key}`} aria-labelledby={`${key}-title`}>
+      <div class="legal-dialog-body legal">
+        <div class="rule-row">
+          <span>{t.legal.toUpperCase()}</span>
+          <form method="dialog">
+            <button class="round-btn" aria-label={t.close}>✕</button>
+          </form>
+        </div>
+        <Content />
+      </div>
+    </dialog>
+  ))
+}
+
+<script>
+  const dialogFor = (name: string | undefined) => {
+    const dialog = document.getElementById(`dialog-${name}`);
+    return dialog instanceof HTMLDialogElement ? dialog : null;
+  };
+
+  // Footer links point at the real pages; with JS they open the dialog instead.
+  document.addEventListener('click', (event) => {
+    const link = event.target instanceof Element ? event.target.closest<HTMLElement>('a[data-legal]') : null;
+    const dialog = dialogFor(link?.dataset.legal);
+    if (!dialog) return;
+    event.preventDefault();
+    dialog.showModal();
+  });
+
+  for (const dialog of document.querySelectorAll<HTMLDialogElement>('.legal-dialog')) {
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+
+  // Deep links: /#legal-notice and /#privacy (also under /de/)
+  dialogFor(location.hash.slice(1))?.showModal();
+</script>

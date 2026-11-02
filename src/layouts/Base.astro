@@ -1,0 +1,35 @@
+---
+import '../styles/global.css';
+import { site } from '../data/site';
+import { ui, type Lang } from '../i18n';
+import antonUrl from '../assets/fonts/anton-400-latin.woff2?url';
+import manropeUrl from '../assets/fonts/manrope-variable-latin.woff2?url';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+}
+
+const { lang, title, description = ui[lang].description } = Astro.props;
+const fullTitle = title ? `${title} — ${site.name}` : `${site.name} — ${ui[lang].role}`;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0F5C63" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" as="font" type="font/woff2" href={antonUrl} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={manropeUrl} crossorigin />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{ui[lang].skipLink}</a>
+    <slot />
+  </body>
+</html>

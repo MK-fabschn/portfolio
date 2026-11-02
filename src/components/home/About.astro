@@ -21,6 +21,7 @@ const copy = {
     more: 'Because I design and develop myself, nothing gets lost between mockup and build — what you approve is exactly what goes live.',
     skillsTitle: 'SKILLS',
     skills: ['Web development', 'App development', 'UI/UX design', 'Graphic design', 'Branding', 'Motion'],
+    photo: 'Portrait of Fabian Trutschnig',
   },
   de: {
     chapter: 'KAPITEL 03 — ÜBER MICH',
@@ -33,6 +34,7 @@ const copy = {
     more: 'Weil ich selbst gestalte und entwickle, geht zwischen Entwurf und Umsetzung nichts verloren — was Sie freigeben, geht genau so online.',
     skillsTitle: 'KÖNNEN',
     skills: ['Webentwicklung', 'App-Entwicklung', 'UI/UX-Design', 'Grafikdesign', 'Branding', 'Motion'],
+    photo: 'Porträt von Fabian Trutschnig',
   },
 }[lang];
 
@@ -52,7 +54,7 @@ const photo = homeImage('about');
   </div>
   <div class="about-grid">
     <figure class="about-photo">
-      {photo && <Image src={photo} alt="" widths={[400, 600, 900]} sizes="(min-width: 700px) 33vw, 90vw" />}
+      {photo && <Image src={photo} alt={copy.photo} widths={[400, 600, 900]} sizes="(min-width: 700px) 33vw, 90vw" />}
     </figure>
     <div class="about-story">
       <span class="kicker">{copy.story}</span>

@@ -84,19 +84,24 @@
 }
 
 :root {
-  --ink: #141a1b;
+  /* CD colours (Portfolio_CD_v2.indd). Stein is #686d6a instead of #6a6f6c so body text on Paper reaches 4.5:1 (WCAG). */
+  --ink: #141a1b; /* Ink */
+  --petrol: #0f5c63; /* Petrol */
+  --paper: #f3f0e8; /* Paper */
+  --aqua: #7fc2c4; /* Aqua */
+  --sand: #e3e1d8; /* Sand */
+  --cream: #ede6db; /* Leinen */
+  --muted: #686d6a; /* Stein */
+  --line: #d6d3ca; /* Kies */
+
+  /* Helper shades derived from the CD colours (no swatch of their own). */
   /* headline capitals on light backgrounds: a step lighter, so the petrol script line on top stands out */
   --ink-soft: #2f3637;
-  --petrol: #0f5c63;
-  --paper: #f3f0e8;
-  --sand: #e3e1d8;
-  --line: #d6d3ca;
-  --muted: #6a6f6c;
-  --aqua: #7fc2c4;
-  --cream: #ede6db;
   --ink-line: #34393a;
   --stone: #a9a59e;
   --fog: #c9c4bb;
+  /* text and lines on Petrol and on photos */
+  --white: #fff;
 
   --display: 'Anton', sans-serif;
   --grotesk: 'Bricolage Grotesque', sans-serif;
@@ -173,12 +178,21 @@ section[id] {
   position: absolute;
   left: -9999px;
 }
+/* read by screen readers, not shown */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .skip-link:focus {
   left: var(--space-3);
   top: var(--space-3);
   z-index: 200;
   background: var(--ink);
-  color: #fff;
+  color: var(--white);
   padding: var(--space-3) var(--space-4);
   border-radius: 999px;
   font-size: 0.875rem;
@@ -286,13 +300,13 @@ section[id] {
 }
 .pill-petrol {
   background: var(--petrol);
-  color: #fff;
+  color: var(--white);
   padding: var(--space-4) var(--space-5);
   font-size: 0.875rem;
 }
 .pill-ink {
   background: var(--ink);
-  color: #fff;
+  color: var(--white);
   padding: var(--space-4) var(--space-6);
   font-size: 0.9375rem;
 }
@@ -537,7 +551,7 @@ section[id] {
 .filter-btn[aria-pressed='true'] {
   border-color: var(--petrol);
   background: var(--petrol);
-  color: #fff;
+  color: var(--white);
 }
 .project-grid {
   list-style: none;
@@ -640,7 +654,10 @@ section[id] {
     color 0.2s,
     transform 0.1s ease-out;
 }
-/* Filtering: each card keeps its identity and glides to its new place. */
+/* Filtering: each card keeps its identity and glides to its new place. The unique name comes from ProjectGrid. */
+.project-grid > li {
+  view-transition-name: var(--vt-name, none);
+}
 ::view-transition-group(*) {
   animation-duration: 0.3s;
 }
@@ -775,7 +792,7 @@ section[id] {
   align-items: center;
   gap: 0 var(--space-3);
   padding: var(--space-3) 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  border-top: 1px solid color-mix(in srgb, var(--white) 35%, transparent);
   font-size: 0.8125rem;
   color: var(--paper);
 }
@@ -802,7 +819,7 @@ section[id] {
   line-height: 0.9;
   text-transform: uppercase;
 }
-.legal h3 {
+.legal .legal-sub {
   margin: var(--space-6) 0 var(--space-2);
   font-size: 0.6875rem;
   font-weight: 700;
@@ -849,14 +866,14 @@ section[id] {
   transform: none;
 }
 .legal-dialog::backdrop {
-  background: rgba(20, 26, 27, 0);
+  background: color-mix(in srgb, var(--ink) 0%, transparent);
   transition:
     background-color 0.2s ease,
     overlay 0.2s allow-discrete,
     display 0.2s allow-discrete;
 }
 .legal-dialog[open]::backdrop {
-  background: rgba(20, 26, 27, 0.55);
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
 }
 @starting-style {
   .legal-dialog[open] {
@@ -864,7 +881,7 @@ section[id] {
     transform: scale(0.98);
   }
   .legal-dialog[open]::backdrop {
-    background: rgba(20, 26, 27, 0);
+    background: color-mix(in srgb, var(--ink) 0%, transparent);
   }
 }
 /* The padding sits on the inner element so a click on the dialog itself can only be the backdrop. */
@@ -910,7 +927,7 @@ html:has(.legal-dialog[open]) {
   }
   .pill-petrol:hover {
     background: var(--ink);
-    color: #fff;
+    color: var(--white);
   }
   .pill-ink:hover {
     background: var(--paper);
@@ -922,11 +939,11 @@ html:has(.legal-dialog[open]) {
   .card:hover .card-arrow {
     background: var(--petrol);
     border-color: var(--petrol);
-    color: #fff;
+    color: var(--white);
   }
   .carousel-btn:not(:disabled):hover {
     background: var(--petrol);
-    color: #fff;
+    color: var(--white);
   }
   .site-footer a:hover {
     color: var(--paper);

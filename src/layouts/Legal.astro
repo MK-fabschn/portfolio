@@ -11,11 +11,11 @@ interface Props {
 }
 
 const { lang, doc } = Astro.props;
-const { title, Content } = legalDoc(lang, doc);
+const { title, description, Content } = legalDoc(lang, doc);
 const t = ui[lang];
 ---
 
-<Base lang={lang} title={title}>
+<Base lang={lang} title={title} description={description}>
   <div class="wrap">
     <PageHeader lang={lang} paths={legalPaths(doc)} />
     <main id="main" class="legal legal-page">

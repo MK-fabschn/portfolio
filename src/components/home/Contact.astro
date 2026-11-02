@@ -57,14 +57,14 @@ const socials = site.socials.filter((social) => social.url);
         }
       </div>
     </div>
-    <Footer lang={lang} link={{ label: t.backToTop, href: '#top' }} />
+    <Footer lang={lang} link={{ label: t.backToTop, href: '#top' }} nested />
   </div>
 </section>
 
 <style>
   .contact {
     background: var(--petrol);
-    color: #fff;
+    color: var(--white);
     padding: var(--section) 0 0;
   }
   .contact-grid {
@@ -88,8 +88,9 @@ const socials = site.socials.filter((social) => social.url);
     line-height: 0.9;
     text-transform: uppercase;
   }
+  /* Aqua instead of Ink: Ink on Petrol only reaches 2.3:1, Aqua 3.8:1 (large text needs 3:1). */
   .contact-title span {
-    color: var(--ink);
+    color: var(--aqua);
   }
   .contact-text {
     margin: var(--space-5) 0 0;
@@ -112,13 +113,13 @@ const socials = site.socials.filter((social) => social.url);
     gap: var(--space-1) var(--space-4);
     padding: var(--space-5) 0;
     border-bottom: 1px solid var(--paper);
-    color: #fff;
+    color: var(--white);
     font-size: clamp(1.125rem, 2vw, 1.5rem);
     overflow-wrap: anywhere;
   }
   @media (hover: hover) {
     a.contact-row:hover {
-      color: #fff;
+      color: var(--white);
       text-decoration: underline;
     }
     .contact-socials a:hover {

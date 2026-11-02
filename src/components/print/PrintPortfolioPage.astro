@@ -167,257 +167,257 @@ const copy = {
     </div>
   </div>
   <LegalDialogs lang={lang} />
+  <script>
+    import { PageFlip } from 'page-flip/dist/js/page-flip.module.js';
+  
+    const stage = document.querySelector<HTMLElement>('[data-stage]')!;
+    const book = stage.querySelector<HTMLElement>('[data-book]')!;
+    const pages = book.querySelectorAll<HTMLElement>('.book-page');
+    const images = book.querySelectorAll('img');
+    const status = stage.querySelector<HTMLElement>('[data-status]')!;
+    const prev = stage.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = stage.querySelector<HTMLButtonElement>('[data-next]')!;
+    const fullscreen = stage.querySelector<HTMLButtonElement>('[data-fullscreen]')!;
+    // One printed page in pixels, from the attributes: the rendered size is still the placeholder's.
+    const width = Number(images[0].getAttribute('width'));
+    const height = Number(images[0].getAttribute('height'));
+  
+    const flip = new PageFlip(book, {
+      // "stretch" scales the book to the frame's width and switches to single pages below 2 × minWidth.
+      width,
+      height,
+      size: 'stretch',
+      minWidth: 280,
+      maxWidth: width,
+      minHeight: 396,
+      maxHeight: height,
+      showCover: true,
+      usePortrait: true,
+      mobileScrollSupport: true,
+      maxShadowOpacity: 0.4,
+      flippingTime: matchMedia('(prefers-reduced-motion: reduce)').matches ? 250 : 800,
+    });
+  
+    /** The page indexes shown together with `index`: the covers alone, the rest as spreads, or one at a time on narrow screens. */
+    function viewOf(index: number) {
+      const last = pages.length - 1;
+      if (flip.getOrientation() === 'portrait' || index === 0 || index === last) return [index];
+      const left = index % 2 === 1 ? index : index - 1;
+      return left === last ? [left] : [left, left + 1];
+    }
+  
+    /** "Page 4–5 of 18", with the printed page numbers. */
+    function statusText(view: number[]) {
+      return status.dataset.status!.replace('{pages}', view.map((i) => i + 1).join('–'));
+    }
+  
+    function update(index = flip.getCurrentPageIndex()) {
+      status.textContent = statusText(viewOf(index));
+      prev.disabled = index === 0;
+      next.disabled = index >= pages.length - (flip.getOrientation() === 'portrait' ? 1 : 2);
+      // Fetch the next pages ahead of time, so a page never turns over blank.
+      for (let i = index; i < Math.min(index + 5, images.length); i++) images[i].loading = 'eager';
+    }
+  
+    flip.on('flip', (e) => update(e.data));
+    flip.on('changeOrientation', () => update());
+    flip.loadFromHTML(pages);
+    update(0);
+  
+    prev.addEventListener('click', () => flip.flipPrev());
+    next.addEventListener('click', () => flip.flipNext());
+    document.addEventListener('keydown', (e) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || document.querySelector('dialog[open]')) return;
+      if (e.key === 'ArrowRight') flip.flipNext();
+      else if (e.key === 'ArrowLeft') flip.flipPrev();
+      else return;
+      e.preventDefault();
+    });
+  
+    if (document.fullscreenEnabled) {
+      fullscreen.hidden = false;
+      fullscreen.addEventListener('click', () =>
+        document.fullscreenElement ? document.exitFullscreen() : stage.requestFullscreen(),
+      );
+      document.addEventListener('fullscreenchange', () => {
+        fullscreen.textContent = document.fullscreenElement ? fullscreen.dataset.exit! : fullscreen.dataset.enter!;
+      });
+    }
+  
+    stage.querySelectorAll<HTMLElement>('[data-controls], [data-hint]').forEach((el) => (el.hidden = false));
+  
+    // Zoom: the open spread in a dialog filling the screen, where it can be enlarged far enough to read.
+    const zoom = stage.querySelector<HTMLDialogElement>('[data-zoom]')!;
+    const viewport = zoom.querySelector<HTMLElement>('[data-zoom-viewport]')!;
+    const spread = zoom.querySelector<HTMLElement>('[data-zoom-spread]')!;
+    const zoomStatus = zoom.querySelector<HTMLElement>('[data-zoom-status]')!;
+    const zoomPrev = zoom.querySelector<HTMLButtonElement>('[data-zoom-prev]')!;
+    const zoomNext = zoom.querySelector<HTMLButtonElement>('[data-zoom-next]')!;
+    const zoomIn = zoom.querySelector<HTMLButtonElement>('[data-zoom-in]')!;
+    const zoomOut = zoom.querySelector<HTMLButtonElement>('[data-zoom-out]')!;
+    const zoomLevel = zoom.querySelector<HTMLOutputElement>('[data-zoom-level]')!;
+    const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent', maximumFractionDigits: 0 });
+    // At 400 % a page on a laptop screen is about as large as the 1654 px export.
+    const maxScale = 4;
+    const step = 1.5;
+    /** Page indexes in the dialog. */
+    let shown: number[] = [];
+    /** 1 = the whole spread fits the window. */
+    let scale = 1;
+  
+    /** Sizes the spread for `scale` and keeps the point under (x, y) where it was. */
+    function render(x?: number, y?: number) {
+      // Labels first: they can change the height of the bar, and so the room for the pages.
+      zoomLevel.value = percent.format(scale);
+      zoomOut.disabled = scale <= 1;
+      zoomIn.disabled = scale >= maxScale;
+      viewport.classList.toggle('is-zoomed', scale > 1);
+  
+      const box = viewport.getBoundingClientRect();
+      x ??= box.left + box.width / 2;
+      y ??= box.top + box.height / 2;
+      const before = spread.getBoundingClientRect();
+      const rx = (x - before.left) / before.width;
+      const ry = (y - before.top) / before.height;
+  
+      const style = getComputedStyle(viewport);
+      const room = {
+        width: viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
+        height: viewport.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom),
+      };
+      const spreadWidth = Math.min(room.width, (room.height * shown.length * width) / height) * scale;
+      spread.style.width = `${spreadWidth}px`;
+      // The browser picks the file from srcset by this, so a sharper one loads as the pages grow.
+      for (const img of spread.querySelectorAll('img')) img.sizes = `${Math.ceil(spreadWidth / shown.length)}px`;
+  
+      const after = spread.getBoundingClientRect();
+      if (Number.isFinite(rx) && Number.isFinite(ry)) {
+        viewport.scrollBy(after.left + rx * after.width - x, after.top + ry * after.height - y);
+      }
+    }
+  
+    function setScale(next: number, x?: number, y?: number) {
+      scale = Math.min(maxScale, Math.max(1, next));
+      render(x, y);
+    }
+  
+    function showView(view: number[]) {
+      shown = view;
+      scale = 1;
+      zoomStatus.textContent = statusText(view);
+      zoomPrev.disabled = view[0] === 0;
+      zoomNext.disabled = view.at(-1) === pages.length - 1;
+      const copies = view.map((i) => {
+        const img = document.createElement('img');
+        img.alt = images[i].alt;
+        img.width = width;
+        img.height = height;
+        img.draggable = false;
+        return img;
+      });
+      spread.replaceChildren(...copies);
+      render();
+      viewport.scrollTo(0, 0);
+      // Only now that `sizes` is set, so the first request is already for the right file.
+      copies.forEach((img, n) => {
+        img.srcset = images[view[n]].srcset;
+        img.src = images[view[n]].getAttribute('src')!;
+      });
+    }
+  
+    stage.querySelector('[data-zoom-open]')!.addEventListener('click', () => {
+      zoom.showModal();
+      showView(viewOf(flip.getCurrentPageIndex()));
+    });
+    // The book waits on the page that was read last.
+    zoom.addEventListener('close', () => {
+      flip.turnToPage(shown[0]);
+      update(shown[0]);
+    });
+    zoomPrev.addEventListener('click', () => showView(viewOf(shown[0] - 1)));
+    zoomNext.addEventListener('click', () => showView(viewOf(shown.at(-1)! + 1)));
+    zoomIn.addEventListener('click', () => setScale(scale * step));
+    zoomOut.addEventListener('click', () => setScale(scale / step));
+    // Window resizes, rotation, and the bar wrapping onto a second line.
+    new ResizeObserver(() => zoom.open && render()).observe(viewport);
+  
+    zoom.addEventListener('keydown', (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === 'ArrowRight') zoomNext.disabled || zoomNext.click();
+      else if (e.key === 'ArrowLeft') zoomPrev.disabled || zoomPrev.click();
+      else if (e.key === '+' || e.key === '=') setScale(scale * step);
+      else if (e.key === '-') setScale(scale / step);
+      else if (e.key === '0') setScale(1);
+      else return;
+      e.preventDefault();
+    });
+  
+    // Mouse: a click zooms in on that spot or back out; dragging moves the enlarged pages. Touch scrolls natively.
+    let drag: { x: number; y: number; left: number; top: number; moved: boolean } | null = null;
+    let dragged = false;
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      drag = { x: e.clientX, y: e.clientY, left: viewport.scrollLeft, top: viewport.scrollTop, moved: false };
+      viewport.setPointerCapture(e.pointerId);
+    });
+    viewport.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+      drag.moved = true;
+      viewport.classList.add('is-dragging');
+      viewport.scrollTo(drag.left - dx, drag.top - dy);
+    });
+    const endDrag = () => {
+      dragged = drag?.moved ?? false;
+      drag = null;
+      viewport.classList.remove('is-dragging');
+    };
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+    viewport.addEventListener('click', (e) => {
+      if (dragged) return void (dragged = false);
+      setScale(scale > 1 ? 1 : 2.5, e.clientX, e.clientY);
+    });
+  
+    // Trackpad pinches arrive as wheel events with ctrlKey set.
+    viewport.addEventListener(
+      'wheel',
+      (e) => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        e.preventDefault();
+        setScale(scale * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
+      },
+      { passive: false },
+    );
+  
+    // Two-finger pinch on touch screens; `touch-action` keeps the browser from zooming the whole page instead.
+    let pinch: { distance: number; scale: number } | null = null;
+    const distance = (t: TouchList) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    viewport.addEventListener(
+      'touchstart',
+      (e) => {
+        if (e.touches.length === 2) pinch = { distance: distance(e.touches), scale };
+      },
+      { passive: true },
+    );
+    viewport.addEventListener(
+      'touchmove',
+      (e) => {
+        if (!pinch || e.touches.length !== 2) return;
+        e.preventDefault();
+        const [a, b] = [e.touches[0], e.touches[1]];
+        setScale((pinch.scale * distance(e.touches)) / pinch.distance, (a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2);
+      },
+      { passive: false },
+    );
+    viewport.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) pinch = null;
+    });
+  </script>
 </Base>
 
-<script>
-  import { PageFlip } from 'page-flip/dist/js/page-flip.module.js';
-
-  const stage = document.querySelector<HTMLElement>('[data-stage]')!;
-  const book = stage.querySelector<HTMLElement>('[data-book]')!;
-  const pages = book.querySelectorAll<HTMLElement>('.book-page');
-  const images = book.querySelectorAll('img');
-  const status = stage.querySelector<HTMLElement>('[data-status]')!;
-  const prev = stage.querySelector<HTMLButtonElement>('[data-prev]')!;
-  const next = stage.querySelector<HTMLButtonElement>('[data-next]')!;
-  const fullscreen = stage.querySelector<HTMLButtonElement>('[data-fullscreen]')!;
-  // One printed page in pixels, from the attributes: the rendered size is still the placeholder's.
-  const width = Number(images[0].getAttribute('width'));
-  const height = Number(images[0].getAttribute('height'));
-
-  const flip = new PageFlip(book, {
-    // "stretch" scales the book to the frame's width and switches to single pages below 2 × minWidth.
-    width,
-    height,
-    size: 'stretch',
-    minWidth: 280,
-    maxWidth: width,
-    minHeight: 396,
-    maxHeight: height,
-    showCover: true,
-    usePortrait: true,
-    mobileScrollSupport: true,
-    maxShadowOpacity: 0.4,
-    flippingTime: matchMedia('(prefers-reduced-motion: reduce)').matches ? 250 : 800,
-  });
-
-  /** The page indexes shown together with `index`: the covers alone, the rest as spreads, or one at a time on narrow screens. */
-  function viewOf(index: number) {
-    const last = pages.length - 1;
-    if (flip.getOrientation() === 'portrait' || index === 0 || index === last) return [index];
-    const left = index % 2 === 1 ? index : index - 1;
-    return left === last ? [left] : [left, left + 1];
-  }
-
-  /** "Page 4–5 of 18", with the printed page numbers. */
-  function statusText(view: number[]) {
-    return status.dataset.status!.replace('{pages}', view.map((i) => i + 1).join('–'));
-  }
-
-  function update(index = flip.getCurrentPageIndex()) {
-    status.textContent = statusText(viewOf(index));
-    prev.disabled = index === 0;
-    next.disabled = index >= pages.length - (flip.getOrientation() === 'portrait' ? 1 : 2);
-    // Fetch the next pages ahead of time, so a page never turns over blank.
-    for (let i = index; i < Math.min(index + 5, images.length); i++) images[i].loading = 'eager';
-  }
-
-  flip.on('flip', (e) => update(e.data));
-  flip.on('changeOrientation', () => update());
-  flip.loadFromHTML(pages);
-  update(0);
-
-  prev.addEventListener('click', () => flip.flipPrev());
-  next.addEventListener('click', () => flip.flipNext());
-  document.addEventListener('keydown', (e) => {
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || document.querySelector('dialog[open]')) return;
-    if (e.key === 'ArrowRight') flip.flipNext();
-    else if (e.key === 'ArrowLeft') flip.flipPrev();
-    else return;
-    e.preventDefault();
-  });
-
-  if (document.fullscreenEnabled) {
-    fullscreen.hidden = false;
-    fullscreen.addEventListener('click', () =>
-      document.fullscreenElement ? document.exitFullscreen() : stage.requestFullscreen(),
-    );
-    document.addEventListener('fullscreenchange', () => {
-      fullscreen.textContent = document.fullscreenElement ? fullscreen.dataset.exit! : fullscreen.dataset.enter!;
-    });
-  }
-
-  stage.querySelectorAll<HTMLElement>('[data-controls], [data-hint]').forEach((el) => (el.hidden = false));
-
-  // Zoom: the open spread in a dialog filling the screen, where it can be enlarged far enough to read.
-  const zoom = stage.querySelector<HTMLDialogElement>('[data-zoom]')!;
-  const viewport = zoom.querySelector<HTMLElement>('[data-zoom-viewport]')!;
-  const spread = zoom.querySelector<HTMLElement>('[data-zoom-spread]')!;
-  const zoomStatus = zoom.querySelector<HTMLElement>('[data-zoom-status]')!;
-  const zoomPrev = zoom.querySelector<HTMLButtonElement>('[data-zoom-prev]')!;
-  const zoomNext = zoom.querySelector<HTMLButtonElement>('[data-zoom-next]')!;
-  const zoomIn = zoom.querySelector<HTMLButtonElement>('[data-zoom-in]')!;
-  const zoomOut = zoom.querySelector<HTMLButtonElement>('[data-zoom-out]')!;
-  const zoomLevel = zoom.querySelector<HTMLOutputElement>('[data-zoom-level]')!;
-  const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent', maximumFractionDigits: 0 });
-  // At 400 % a page on a laptop screen is about as large as the 1654 px export.
-  const maxScale = 4;
-  const step = 1.5;
-  /** Page indexes in the dialog. */
-  let shown: number[] = [];
-  /** 1 = the whole spread fits the window. */
-  let scale = 1;
-
-  /** Sizes the spread for `scale` and keeps the point under (x, y) where it was. */
-  function render(x?: number, y?: number) {
-    // Labels first: they can change the height of the bar, and so the room for the pages.
-    zoomLevel.value = percent.format(scale);
-    zoomOut.disabled = scale <= 1;
-    zoomIn.disabled = scale >= maxScale;
-    viewport.classList.toggle('is-zoomed', scale > 1);
-
-    const box = viewport.getBoundingClientRect();
-    x ??= box.left + box.width / 2;
-    y ??= box.top + box.height / 2;
-    const before = spread.getBoundingClientRect();
-    const rx = (x - before.left) / before.width;
-    const ry = (y - before.top) / before.height;
-
-    const style = getComputedStyle(viewport);
-    const room = {
-      width: viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
-      height: viewport.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom),
-    };
-    const spreadWidth = Math.min(room.width, (room.height * shown.length * width) / height) * scale;
-    spread.style.width = `${spreadWidth}px`;
-    // The browser picks the file from srcset by this, so a sharper one loads as the pages grow.
-    for (const img of spread.querySelectorAll('img')) img.sizes = `${Math.ceil(spreadWidth / shown.length)}px`;
-
-    const after = spread.getBoundingClientRect();
-    if (Number.isFinite(rx) && Number.isFinite(ry)) {
-      viewport.scrollBy(after.left + rx * after.width - x, after.top + ry * after.height - y);
-    }
-  }
-
-  function setScale(next: number, x?: number, y?: number) {
-    scale = Math.min(maxScale, Math.max(1, next));
-    render(x, y);
-  }
-
-  function showView(view: number[]) {
-    shown = view;
-    scale = 1;
-    zoomStatus.textContent = statusText(view);
-    zoomPrev.disabled = view[0] === 0;
-    zoomNext.disabled = view.at(-1) === pages.length - 1;
-    const copies = view.map((i) => {
-      const img = document.createElement('img');
-      img.alt = images[i].alt;
-      img.width = width;
-      img.height = height;
-      img.draggable = false;
-      return img;
-    });
-    spread.replaceChildren(...copies);
-    render();
-    viewport.scrollTo(0, 0);
-    // Only now that `sizes` is set, so the first request is already for the right file.
-    copies.forEach((img, n) => {
-      img.srcset = images[view[n]].srcset;
-      img.src = images[view[n]].getAttribute('src')!;
-    });
-  }
-
-  stage.querySelector('[data-zoom-open]')!.addEventListener('click', () => {
-    zoom.showModal();
-    showView(viewOf(flip.getCurrentPageIndex()));
-  });
-  // The book waits on the page that was read last.
-  zoom.addEventListener('close', () => {
-    flip.turnToPage(shown[0]);
-    update(shown[0]);
-  });
-  zoomPrev.addEventListener('click', () => showView(viewOf(shown[0] - 1)));
-  zoomNext.addEventListener('click', () => showView(viewOf(shown.at(-1)! + 1)));
-  zoomIn.addEventListener('click', () => setScale(scale * step));
-  zoomOut.addEventListener('click', () => setScale(scale / step));
-  // Window resizes, rotation, and the bar wrapping onto a second line.
-  new ResizeObserver(() => zoom.open && render()).observe(viewport);
-
-  zoom.addEventListener('keydown', (e) => {
-    if (e.altKey || e.ctrlKey || e.metaKey) return;
-    if (e.key === 'ArrowRight') zoomNext.disabled || zoomNext.click();
-    else if (e.key === 'ArrowLeft') zoomPrev.disabled || zoomPrev.click();
-    else if (e.key === '+' || e.key === '=') setScale(scale * step);
-    else if (e.key === '-') setScale(scale / step);
-    else if (e.key === '0') setScale(1);
-    else return;
-    e.preventDefault();
-  });
-
-  // Mouse: a click zooms in on that spot or back out; dragging moves the enlarged pages. Touch scrolls natively.
-  let drag: { x: number; y: number; left: number; top: number; moved: boolean } | null = null;
-  let dragged = false;
-  viewport.addEventListener('pointerdown', (e) => {
-    if (e.pointerType !== 'mouse' || e.button !== 0) return;
-    drag = { x: e.clientX, y: e.clientY, left: viewport.scrollLeft, top: viewport.scrollTop, moved: false };
-    viewport.setPointerCapture(e.pointerId);
-  });
-  viewport.addEventListener('pointermove', (e) => {
-    if (!drag) return;
-    const dx = e.clientX - drag.x;
-    const dy = e.clientY - drag.y;
-    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
-    drag.moved = true;
-    viewport.classList.add('is-dragging');
-    viewport.scrollTo(drag.left - dx, drag.top - dy);
-  });
-  const endDrag = () => {
-    dragged = drag?.moved ?? false;
-    drag = null;
-    viewport.classList.remove('is-dragging');
-  };
-  viewport.addEventListener('pointerup', endDrag);
-  viewport.addEventListener('pointercancel', endDrag);
-  viewport.addEventListener('click', (e) => {
-    if (dragged) return void (dragged = false);
-    setScale(scale > 1 ? 1 : 2.5, e.clientX, e.clientY);
-  });
-
-  // Trackpad pinches arrive as wheel events with ctrlKey set.
-  viewport.addEventListener(
-    'wheel',
-    (e) => {
-      if (!e.ctrlKey && !e.metaKey) return;
-      e.preventDefault();
-      setScale(scale * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
-    },
-    { passive: false },
-  );
-
-  // Two-finger pinch on touch screens; `touch-action` keeps the browser from zooming the whole page instead.
-  let pinch: { distance: number; scale: number } | null = null;
-  const distance = (t: TouchList) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-  viewport.addEventListener(
-    'touchstart',
-    (e) => {
-      if (e.touches.length === 2) pinch = { distance: distance(e.touches), scale };
-    },
-    { passive: true },
-  );
-  viewport.addEventListener(
-    'touchmove',
-    (e) => {
-      if (!pinch || e.touches.length !== 2) return;
-      e.preventDefault();
-      const [a, b] = [e.touches[0], e.touches[1]];
-      setScale((pinch.scale * distance(e.touches)) / pinch.distance, (a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2);
-    },
-    { passive: false },
-  );
-  viewport.addEventListener('touchend', (e) => {
-    if (e.touches.length < 2) pinch = null;
-  });
-</script>
 
 <style>
   .print-intro {
@@ -472,7 +472,7 @@ const copy = {
   }
   /* page-flip marks each shown page as left or right; the shade along the fold makes the spread read as paper. */
   .book-page:global(.stf__item) {
-    box-shadow: 0 12px 32px rgb(20 26 27 / 0.12);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
   }
   .book-page:global(.stf__item)::after {
     content: '';
@@ -481,10 +481,10 @@ const copy = {
     pointer-events: none;
   }
   .book-page:global(.--left)::after {
-    background: linear-gradient(to left, rgb(20 26 27 / 0.14), transparent 6%);
+    background: linear-gradient(to left, color-mix(in srgb, var(--ink) 14%, transparent), transparent 6%);
   }
   .book-page:global(.--right)::after {
-    background: linear-gradient(to right, rgb(20 26 27 / 0.14), transparent 6%);
+    background: linear-gradient(to right, color-mix(in srgb, var(--ink) 14%, transparent), transparent 6%);
   }
   .book-page img {
     display: block;
@@ -564,7 +564,8 @@ const copy = {
     margin: var(--space-3) 0 0;
     text-align: center;
     font-size: 0.8125rem;
-    color: var(--muted);
+    /* sits on Sand, where Stein only reaches 4.0:1 */
+    color: var(--ink-soft);
   }
 
   .print-stage:fullscreen {
@@ -648,7 +649,7 @@ const copy = {
     flex: none;
     display: flex;
     margin: auto;
-    box-shadow: 0 12px 32px rgb(20 26 27 / 0.12);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
   }
   /* Created by the script, so without Astro's scope attribute. */
   .zoom-spread :global(img) {

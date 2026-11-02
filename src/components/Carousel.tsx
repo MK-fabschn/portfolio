@@ -51,6 +51,7 @@ export default function Carousel({ slides, labels }: { slides: Slide[]; labels: 
           className="carousel-track"
           ref={trackRef}
           tabIndex={0}
+          role="region"
           aria-label={labels.track}
           onScroll={syncIndex}
         >

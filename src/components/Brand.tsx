@@ -11,7 +11,8 @@ interface Props {
 export default function Brand({ logoSrc, role, homeLabel, href }: Props) {
   const [first, ...rest] = site.name.split(' ');
   return (
-    <a className="brand" href={href} aria-label={`${site.name} — ${homeLabel}`}>
+    // No aria-label: the visible text is the link's name (WCAG "label in name"); "home" is added for screen readers only.
+    <a className="brand" href={href}>
       <img src={logoSrc} alt="" width="30" height="40" />
       <span className="brand-rule" />
       <span className="brand-text">
@@ -21,6 +22,7 @@ export default function Brand({ logoSrc, role, homeLabel, href }: Props) {
           {rest.join(' ')}
         </span>
         <span className="brand-role">{role}</span>
+        <span className="visually-hidden"> — {homeLabel}</span>
       </span>
     </a>
   );

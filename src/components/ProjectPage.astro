@@ -177,7 +177,7 @@ const facts = [
           <a class="pill pill-ink" href={`mailto:${site.email}`}>{t.startProject} <span aria-hidden="true">↗</span></a>
         </div>
       </div>
-      <Footer lang={lang} link={{ label: t.allProjects, href: workHref }} />
+      <Footer lang={lang} link={{ label: t.allProjects, href: workHref }} nested />
     </div>
   </section>
   <LegalDialogs lang={lang} />
@@ -428,12 +428,12 @@ const facts = [
   .pager-next .pager-arrow {
     background: var(--petrol);
     border-color: var(--petrol);
-    color: #fff;
+    color: var(--white);
   }
 
   .cta {
     background: var(--petrol);
-    color: #fff;
+    color: var(--white);
     padding: var(--section) 0 0;
   }
   .cta-row {
@@ -453,7 +453,7 @@ const facts = [
     text-transform: uppercase;
   }
   .cta h2 span {
-    color: var(--ink);
+    color: var(--aqua);
   }
   .cta-copy {
     display: flex;

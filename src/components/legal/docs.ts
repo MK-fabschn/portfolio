@@ -10,18 +10,20 @@ interface LegalDoc {
   /** Same in both languages: dialog id, footer `data-legal` and deep link (`/#privacy`). */
   key: LegalKey;
   title: string;
+  /** Meta description of the standalone page. */
+  description: string;
   href: string;
   Content: typeof LegalNotice;
 }
 
 export const legalDocs: Record<Lang, LegalDoc[]> = {
   en: [
-    { key: 'legal-notice', title: 'Legal notice', href: '/en/legal-notice/', Content: LegalNotice },
-    { key: 'privacy', title: 'Privacy', href: '/en/privacy/', Content: Privacy },
+    { key: 'legal-notice', title: 'Legal notice', description: 'Legal notice of the private portfolio of Fabian Trutschnig: disclosure under § 25(5) of the Austrian Media Act.', href: '/en/legal-notice/', Content: LegalNotice },
+    { key: 'privacy', title: 'Privacy', description: 'Privacy policy of fabian-trutschnig.dev: hosting, Cloudflare, e-mail contact, no cookies and your rights under the GDPR.', href: '/en/privacy/', Content: Privacy },
   ],
   de: [
-    { key: 'legal-notice', title: 'Impressum', href: '/impressum/', Content: Impressum },
-    { key: 'privacy', title: 'Datenschutz', href: '/datenschutz/', Content: Datenschutz },
+    { key: 'legal-notice', title: 'Impressum', description: 'Impressum des privaten Portfolios von Fabian Trutschnig: Offenlegung nach § 25 Abs. 5 Mediengesetz.', href: '/impressum/', Content: Impressum },
+    { key: 'privacy', title: 'Datenschutz', description: 'Datenschutzerklärung von fabian-trutschnig.dev: Hosting, Cloudflare, Kontakt per E-Mail, keine Cookies und Ihre Rechte nach der DSGVO.', href: '/datenschutz/', Content: Datenschutz },
   ],
 };
 

@@ -78,8 +78,9 @@ const [firstName, ...lastName] = site.name.split(' ');
             class="hero-portrait"
             src={portrait}
             alt={copy.portrait}
-            widths={[480, 720, 1080]}
-            sizes="(min-width: 860px) 45vw, 90vw"
+            widths={[480, 720, 900, 1080]}
+            sizes="(min-width: 860px) 45vw, 76vw"
+            quality={70}
             loading="eager"
             fetchpriority="high"
           />

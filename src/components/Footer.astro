@@ -7,12 +7,14 @@ interface Props {
   lang: Lang;
   /** Last link in the row: "Back to top" on the home page, "All projects" elsewhere. */
   link: { label: string; href: string };
+  /** True where the footer sits inside a section in <main>: then it needs an explicit contentinfo role. */
+  nested?: boolean;
 }
 
-const { lang, link } = Astro.props;
+const { lang, link, nested = false } = Astro.props;
 ---
 
-<footer class="site-footer">
+<footer class="site-footer" role={nested ? 'contentinfo' : undefined}>
   <span>© {new Date().getFullYear()} {site.name}</span>
   <nav aria-label={ui[lang].legal}>
     {/* Real pages; where LegalDialogs is present the links open the dialog instead. */}

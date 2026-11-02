@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { flushSync } from 'react-dom';
 import type { ResponsiveImage } from '../lib/images';
 
@@ -67,7 +67,8 @@ export default function ProjectGrid({ projects, filters, labels }: Props) {
       </div>
       <ul className="project-grid" ref={listRef}>
         {shown.map((project) => (
-          <li key={project.href} style={{ viewTransitionName: `card-${project.no}` }}>
+          // The name goes in as a custom property; global.css turns it into view-transition-name.
+          <li key={project.href} style={{ '--vt-name': `card-${project.no}` } as CSSProperties}>
             <a className="card" href={project.href}>
               <span className="card-label">{project.label}</span>
               <span className="card-image">

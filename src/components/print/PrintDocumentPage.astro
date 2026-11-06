@@ -36,7 +36,6 @@ const docCopy = {
       note: 'The print edition is in German.',
       stage: 'Print portfolio, flip-through view',
       zoomTitle: 'Print portfolio, zoomed view',
-      hint: 'Arrow keys, click, or drag a page corner. Zoom in to read the pages.',
       other: { label: 'View my CV', href: cvPath.en },
     },
     de: {
@@ -47,7 +46,6 @@ const docCopy = {
       note: '',
       stage: 'Print-Portfolio, Blätteransicht',
       zoomTitle: 'Print-Portfolio, vergrößerte Ansicht',
-      hint: 'Pfeiltasten, Klick oder an der Seitenecke ziehen. Zum Lesen die Seiten heranzoomen.',
       other: { label: 'Lebenslauf ansehen', href: cvPath.de },
     },
   },
@@ -60,7 +58,6 @@ const docCopy = {
       note: 'The CV is in German.',
       stage: 'CV, page view',
       zoomTitle: 'CV, zoomed view',
-      hint: 'Click the page or use zoom to read it.',
       other: { label: 'View the print portfolio', href: printPath.en },
     },
     de: {
@@ -71,7 +68,6 @@ const docCopy = {
       note: '',
       stage: 'Lebenslauf, Seitenansicht',
       zoomTitle: 'Lebenslauf, vergrößerte Ansicht',
-      hint: 'Zum Lesen die Seite anklicken oder heranzoomen.',
       other: { label: 'Print-Portfolio ansehen', href: printPath.de },
     },
   },
@@ -196,7 +192,6 @@ const copy = {
         {copy.fullscreen}
       </button>
     </div>
-    <p class="book-hint" hidden data-hint>{copy.hint}</p>
 
     {/* Inside the stage, so it stays on screen when the stage is in full screen. */}
     <dialog class="zoom" aria-label={copy.zoomTitle} data-zoom>
@@ -324,7 +319,7 @@ const copy = {
       });
     }
   
-    stage.querySelectorAll<HTMLElement>('[data-controls], [data-hint]').forEach((el) => (el.hidden = false));
+    stage.querySelectorAll<HTMLElement>('[data-controls]').forEach((el) => (el.hidden = false));
   
     // Zoom: the open spread in a dialog filling the screen, where it can be enlarged far enough to read.
     const zoom = stage.querySelector<HTMLDialogElement>('[data-zoom]')!;
@@ -709,13 +704,6 @@ const copy = {
     stroke-width: 1.5;
     stroke-linecap: round;
   }
-  .book-hint {
-    margin: var(--space-3) 0 0;
-    text-align: center;
-    font-size: 0.8125rem;
-    /* sits on Sand, where Stein only reaches 4.0:1 */
-    color: var(--ink-soft);
-  }
 
   .print-stage:fullscreen {
     display: flex;
@@ -725,9 +713,6 @@ const copy = {
   }
   .print-stage:fullscreen .book-frame {
     width: min(100%, calc((100svh - 12rem) * var(--book-ratio)));
-  }
-  .print-stage:fullscreen .book-hint {
-    display: none;
   }
 
   .zoom {

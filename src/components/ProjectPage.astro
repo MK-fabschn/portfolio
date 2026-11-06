@@ -416,15 +416,17 @@ const facts = [
   .pager :global(.pager-arrow) {
     font-size: clamp(1.75rem, 3.5vw, 2.5rem);
     flex: none;
-    transition: transform 0.2s ease;
-  }
-  .pager-next :global(.pager-arrow) {
-    color: var(--petrol);
+    transition:
+      color 0.2s,
+      transform 0.2s ease;
   }
   .pager a:active :global(.pager-arrow) {
     transform: scale(0.94);
   }
   @media (hover: hover) {
+    .pager a:hover :global(.pager-arrow) {
+      color: var(--petrol);
+    }
     .pager-prev:hover :global(.pager-arrow) {
       transform: translateX(-4px);
     }

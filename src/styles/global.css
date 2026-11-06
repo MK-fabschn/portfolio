@@ -282,6 +282,11 @@ section[id] {
   align-items: end;
   padding: var(--block) 0;
 }
+/* drawn arrow (components/Arrow.tsx): sits on the text baseline like a glyph would */
+.arrow {
+  flex: none;
+  vertical-align: -0.125em;
+}
 .kicker {
   font-size: 0.6875rem;
   font-weight: 700;
@@ -394,14 +399,31 @@ section[id] {
   display: none;
   width: var(--tap);
   height: var(--tap);
-  border-radius: 50%;
-  border: 1px solid var(--ink);
+  margin-right: calc(-1 * var(--space-3));
+  padding: 0;
+  border: 0;
   background: transparent;
   place-items: center;
   cursor: pointer;
-  font-size: 1.125rem;
   color: var(--ink);
   transition: transform 0.1s ease-out;
+}
+.nav-toggle svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  overflow: visible;
+}
+/* the two bars turn into an X */
+.nav-toggle line {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.35s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.site-nav.is-open .nav-toggle line:first-child {
+  transform: translateY(4px) rotate(45deg);
+}
+.site-nav.is-open .nav-toggle line:last-child {
+  transform: translateY(-4px) rotate(-45deg);
 }
 .all-work {
   display: none;
@@ -439,44 +461,64 @@ section[id] {
   pointer-events: none;
   transition: opacity 0.2s ease;
 }
-.site-nav.is-scrolled::before,
-.site-nav.is-open::before {
+.site-nav.is-scrolled::before {
   opacity: 1;
 }
-/* An open menu needs a solid surface to stay legible over whatever is behind it. */
-.site-nav.is-open::before {
-  /* reaches 1px under the menu panel so no hairline of the page shows between the two */
-  inset: 0 0 -1px 0;
-  background: var(--paper);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  -webkit-mask-image: none;
-  mask-image: none;
+/* The bar stays on top of the open menu, so logo, language and the close button remain in place. */
+.site-nav > .wrap {
+  position: relative;
+  z-index: 1;
 }
+/*
+ * Mobile menu: a full-screen layer that grows out of the menu button as a circle and
+ * shrinks back into it; the links follow one after another once the surface is there.
+ */
 .nav-menu {
-  position: absolute;
-  inset: 100% 0 auto 0;
+  --origin: calc(100% - var(--gutter) - var(--tap) / 2 + var(--space-3)) calc(var(--space-4) + var(--tap) / 2);
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--gutter) var(--space-5);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-9) var(--gutter);
   background: var(--paper);
-  border-bottom: 1px solid var(--line);
-  font-family: var(--serif);
-  font-size: 2.25rem;
-  /* closes along the path it opened on */
-  opacity: 0;
+  font-family: var(--sans);
+  font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-align: center;
+  clip-path: circle(0 at var(--origin));
   visibility: hidden;
-  transform: translateY(calc(-1 * var(--space-2)));
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease,
-    visibility 0.2s;
+    clip-path 0.5s cubic-bezier(0.7, 0, 0.2, 1) 0.1s,
+    visibility 0s linear 0.6s;
 }
 .site-nav.is-open .nav-menu {
-  opacity: 1;
+  clip-path: circle(150% at var(--origin));
   visibility: visible;
+  transition:
+    clip-path 0.55s cubic-bezier(0.7, 0, 0.2, 1),
+    visibility 0s;
+}
+.nav-menu a {
+  opacity: 0;
+  transform: translateY(var(--space-3));
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.site-nav.is-open .nav-menu a {
+  opacity: 1;
   transform: none;
+  transition:
+    opacity 0.4s ease calc(0.25s + var(--i) * 0.06s),
+    transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) calc(0.25s + var(--i) * 0.06s);
+}
+html:has(.site-nav.is-open) {
+  overflow: hidden;
 }
 @media (max-width: 899px) {
   .header-actions {
@@ -622,17 +664,11 @@ section[id] {
   margin-top: var(--space-2);
 }
 .card-arrow {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--ink);
-  display: grid;
-  place-items: center;
-  font-size: 0.9375rem;
+  font-size: 1.5rem;
+  margin-top: var(--space-1);
   transition:
-    background-color 0.2s,
     color 0.2s,
-    border-color 0.2s;
+    transform 0.2s ease;
 }
 .load-more-row {
   display: flex;
@@ -702,11 +738,14 @@ section[id] {
   translate: 0 -50%;
   width: clamp(var(--tap), 4vw, 3.5rem);
   height: clamp(var(--tap), 4vw, 3.5rem);
-  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 1.125rem;
+  background: transparent;
+  color: var(--white);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.5));
   cursor: pointer;
   z-index: 2;
   transition:
@@ -893,17 +932,18 @@ section[id] {
   flex-wrap: nowrap;
 }
 .round-btn {
+  display: grid;
+  place-items: center;
   width: var(--tap);
   height: var(--tap);
   flex: none;
-  border-radius: 50%;
-  border: 1px solid var(--ink);
+  padding: 0;
+  border: 0;
   background: transparent;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.375rem;
   color: var(--ink);
   transition:
-    background-color 0.2s,
     color 0.2s,
     transform 0.1s ease-out;
 }
@@ -937,19 +977,20 @@ html:has(.legal-dialog[open]) {
     border-color: var(--petrol);
   }
   .card:hover .card-arrow {
-    background: var(--petrol);
-    border-color: var(--petrol);
-    color: var(--white);
+    color: var(--petrol);
+    transform: translate(2px, -2px);
   }
   .carousel-btn:not(:disabled):hover {
-    background: var(--petrol);
-    color: var(--white);
+    color: var(--paper);
+    transform: scale(1.08);
   }
   .site-footer a:hover {
     color: var(--paper);
     text-decoration: underline;
   }
-  .round-btn:hover,
+  .round-btn:not(:disabled):hover {
+    color: var(--petrol);
+  }
   .load-more:hover {
     background: var(--ink);
     color: var(--paper);
@@ -980,8 +1021,19 @@ html:has(.legal-dialog[open]) {
     animation: none !important;
     transition-property: opacity, color, background-color, border-color, visibility, overlay, display !important;
   }
-  .legal-dialog,
   .nav-menu,
+  .site-nav.is-open .nav-menu {
+    clip-path: none;
+  }
+  .nav-menu {
+    opacity: 0;
+  }
+  .site-nav.is-open .nav-menu {
+    opacity: 1;
+  }
+  .legal-dialog,
+  .nav-menu a,
+  .card-arrow,
   .pill:active,
   .filter-btn:active,
   .load-more:active,

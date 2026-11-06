@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../PageHeader.astro';
 import Footer from '../Footer.astro';
+import Arrow from '../Arrow';
 import LegalDialogs from '../legal/LegalDialogs.astro';
 import { responsiveImage } from '../../lib/images';
 import { downloads, printPages, type PrintDoc } from '../../data/print';
@@ -121,8 +122,8 @@ const copy = {
     <main id="main">
       <section class="print-intro">
         <div class="rule-row">
-          <a href={homePath[lang]}>← {t.home.toUpperCase()}</a>
-          <a href={copy.other.href}>{copy.other.label.toUpperCase()} →</a>
+          <a href={homePath[lang]}><Arrow dir="left" /> {t.home.toUpperCase()}</a>
+          <a href={copy.other.href}>{copy.other.label.toUpperCase()} <Arrow dir="right" /></a>
         </div>
         <div class="section-intro print-heading">
           <h1 class="display">{copy.heading[0]}<span class="display-script">{copy.heading[1]}</span></h1>
@@ -131,7 +132,7 @@ const copy = {
             {/* Two PDFs of the same layout: one for screen and e-mail, one for the print shop. */}
             <details class="download" data-download>
               <summary class="pill pill-petrol">
-                {copy.pdf} <span aria-hidden="true">↓</span>
+                {copy.pdf} <Arrow dir="down" />
               </summary>
               <ul class="download-menu" aria-label={copy.downloadMenu}>
                 {
@@ -174,9 +175,9 @@ const copy = {
     </div>
 
     <div class="book-controls" hidden data-controls>
-      <button class="round-btn" type="button" aria-label={copy.prev} hidden={single} data-prev>←</button>
+      <button class="round-btn" type="button" aria-label={copy.prev} hidden={single} data-prev><Arrow dir="left" /></button>
       <p class="book-status" aria-live="polite" hidden={single} data-status={copy.status}></p>
-      <button class="round-btn" type="button" aria-label={copy.next} hidden={single} data-next>→</button>
+      <button class="round-btn" type="button" aria-label={copy.next} hidden={single} data-next><Arrow dir="right" /></button>
       <button class="book-tool" type="button" data-zoom-open>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="10.5" cy="10.5" r="6.5"></circle>
@@ -201,9 +202,9 @@ const copy = {
     <dialog class="zoom" aria-label={copy.zoomTitle} data-zoom>
       <div class="zoom-bar">
         <div class="zoom-group" hidden={single}>
-          <button class="round-btn" type="button" aria-label={copy.prev} data-zoom-prev>←</button>
+          <button class="round-btn" type="button" aria-label={copy.prev} data-zoom-prev><Arrow dir="left" /></button>
           <p class="book-status" data-zoom-status></p>
-          <button class="round-btn" type="button" aria-label={copy.next} data-zoom-next>→</button>
+          <button class="round-btn" type="button" aria-label={copy.next} data-zoom-next><Arrow dir="right" /></button>
         </div>
         <div class="zoom-group">
           <button class="round-btn" type="button" aria-label={copy.zoomOut} data-zoom-out>−</button>
@@ -578,9 +579,17 @@ const copy = {
     font-size: 0.9375rem;
     font-weight: 700;
   }
+  /* drawn like components/Arrow.tsx: a text arrow would turn into an emoji on iOS */
   .download-name::after {
-    content: ' ↓';
-    color: var(--petrol);
+    content: '';
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.3em;
+    vertical-align: -0.125em;
+    background: var(--petrol);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 3v14M4 11l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 3v14M4 11l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
   }
 
   .print-stage {

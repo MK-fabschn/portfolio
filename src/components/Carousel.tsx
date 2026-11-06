@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { ResponsiveImage } from '../lib/images';
+import Arrow from './Arrow';
 
 export interface Slide {
   image: ResponsiveImage;
@@ -81,7 +82,7 @@ export default function Carousel({ slides, labels }: { slides: Slide[]; labels: 
               disabled={index === 0}
               onClick={() => go(index - 1)}
             >
-              ←
+              <Arrow dir="left" />
             </button>
             <button
               type="button"
@@ -90,7 +91,7 @@ export default function Carousel({ slides, labels }: { slides: Slide[]; labels: 
               disabled={index === count - 1}
               onClick={() => go(index + 1)}
             >
-              →
+              <Arrow dir="right" />
             </button>
           </>
         )}

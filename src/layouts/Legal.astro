@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro';
+import Arrow from '../components/Arrow';
 import PageHeader from '../components/PageHeader.astro';
 import Footer from '../components/Footer.astro';
 import { legalDoc, legalPaths, type LegalKey } from '../components/legal/docs';
@@ -20,7 +21,7 @@ const t = ui[lang];
     <PageHeader lang={lang} paths={legalPaths(doc)} />
     <main id="main" class="legal legal-page">
       <div class="rule-row">
-        <a href={homePath[lang]}>← {t.home.toUpperCase()}</a>
+        <a href={homePath[lang]}><Arrow dir="left" /> {t.home.toUpperCase()}</a>
         <span>{t.legal.toUpperCase()}</span>
       </div>
       <Content heading="h1" />

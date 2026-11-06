@@ -5,6 +5,7 @@ import PageHeader from './PageHeader.astro';
 import Footer from './Footer.astro';
 import LegalDialogs from './legal/LegalDialogs.astro';
 import Carousel from './Carousel';
+import Arrow from './Arrow';
 import { responsiveImage } from '../lib/images';
 import { categoryLabels, projectHref, type projectPaths } from '../lib/projects';
 import { site } from '../data/site';
@@ -19,7 +20,7 @@ const t = ui[lang];
 
 const copy = {
   en: {
-    back: '← ALL PROJECTS',
+    back: 'ALL PROJECTS',
     project: 'PROJECT',
     visit: 'Visit live site',
     client: 'CLIENT',
@@ -42,7 +43,7 @@ const copy = {
     },
   },
   de: {
-    back: '← ALLE PROJEKTE',
+    back: 'ALLE PROJEKTE',
     project: 'PROJEKT',
     visit: 'Live-Seite besuchen',
     client: 'KUNDE',
@@ -94,7 +95,7 @@ const facts = [
     <main id="main">
       <section class="project-hero">
         <div class="rule-row">
-          <a class="back" href={workHref}>{copy.back}</a>
+          <a class="back" href={workHref}><Arrow dir="left" /> {copy.back}</a>
           <span>{copy.project} {no} — {categoryLabels[lang][data.categories[0]].toUpperCase()}</span>
         </div>
         <div class="project-head">
@@ -109,7 +110,7 @@ const facts = [
             {
               data.url && (
                 <a class="pill pill-petrol" href={data.url} rel="noopener noreferrer">
-                  {copy.visit} <span aria-hidden="true">↗</span>
+                  {copy.visit} <Arrow dir="up-right" />
                 </a>
               )
             }
@@ -151,7 +152,7 @@ const facts = [
 
       <nav class="pager" aria-label={copy.pager}>
         <a class="pager-prev" href={prev.href}>
-          <span class="pager-arrow" aria-hidden="true">←</span>
+          <Arrow dir="left" className="pager-arrow" />
           <span class="pager-text">
             <span class="kicker">{copy.prev} · {prev.no}</span>
             <span class="pager-title">{prev.title}</span>
@@ -162,7 +163,7 @@ const facts = [
             <span class="kicker">{copy.next} · {next.no}</span>
             <span class="pager-title">{next.title}</span>
           </span>
-          <span class="pager-arrow" aria-hidden="true">→</span>
+          <Arrow dir="right" className="pager-arrow" />
         </a>
       </nav>
     </main>
@@ -174,7 +175,7 @@ const facts = [
         <h2>{copy.cta[0]}<br /><span>{copy.cta[1]}</span></h2>
         <div class="cta-copy">
           <p>{copy.ctaText}</p>
-          <a class="pill pill-ink" href={`mailto:${site.email}`}>{t.startProject} <span aria-hidden="true">↗</span></a>
+          <a class="pill pill-ink" href={`mailto:${site.email}`}>{t.startProject} <Arrow dir="up-right" /></a>
         </div>
       </div>
       <Footer lang={lang} link={{ label: t.allProjects, href: workHref }} nested />
@@ -411,24 +412,25 @@ const facts = [
     font-size: clamp(1.375rem, 3vw, 2.75rem);
     line-height: 1;
   }
-  .pager-arrow {
-    width: clamp(3rem, 5vw, 4rem);
-    height: clamp(3rem, 5vw, 4rem);
-    border-radius: 50%;
-    border: 1px solid var(--ink);
-    display: grid;
-    place-items: center;
-    font-size: 1.25rem;
+  /* rendered by a React component, so the scoped class needs :global */
+  .pager :global(.pager-arrow) {
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
     flex: none;
-    transition: transform 0.1s ease-out;
+    transition: transform 0.2s ease;
   }
-  .pager a:active .pager-arrow {
-    transform: scale(0.97);
+  .pager-next :global(.pager-arrow) {
+    color: var(--petrol);
   }
-  .pager-next .pager-arrow {
-    background: var(--petrol);
-    border-color: var(--petrol);
-    color: var(--white);
+  .pager a:active :global(.pager-arrow) {
+    transform: scale(0.94);
+  }
+  @media (hover: hover) {
+    .pager-prev:hover :global(.pager-arrow) {
+      transform: translateX(-4px);
+    }
+    .pager-next:hover :global(.pager-arrow) {
+      transform: translateX(4px);
+    }
   }
 
   .cta {

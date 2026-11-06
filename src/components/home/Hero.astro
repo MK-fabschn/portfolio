@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import Arrow from '../Arrow';
 import { site } from '../../data/site';
 import { homeImage } from '../../lib/images';
 import { cvPath, printPath, ui, type Lang } from '../../i18n';
@@ -60,7 +61,7 @@ const [firstName, ...lastName] = site.name.split(' ');
       <div class="hero-role">{ui[lang].role}</div>
       <p class="hero-text">{copy.text}</p>
       <div class="hero-actions">
-        <a class="pill pill-petrol" href="#work">{copy.work} <span aria-hidden="true">↗</span></a>
+        <a class="pill pill-petrol" href="#work">{copy.work} <Arrow dir="up-right" /></a>
         <a class="hero-talk" href="#contact">{copy.talk}</a>
       </div>
       <div class="hero-docs">
@@ -68,13 +69,13 @@ const [firstName, ...lastName] = site.name.split(' ');
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 6.5C10 5 7 4.5 3 4.5v13c4 0 7 .5 9 2 2-1.5 5-2 9-2v-13c-4 0-7 .5-9 2Zm0 0v13"></path>
           </svg>
-          {copy.print} <span aria-hidden="true">→</span>
+          {copy.print} <Arrow dir="right" />
         </a>
         <a class="pill hero-print" href={cvPath[lang]}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6 3.5h8.5L19 8v12.5H6Zm8.5 0V8H19M9 12.5h7M9 16h7"></path>
           </svg>
-          {copy.cv} <span aria-hidden="true">→</span>
+          {copy.cv} <Arrow dir="right" />
         </a>
       </div>
       {signature && <Image class="hero-signature" src={signature} alt={copy.signature} width={480} />}

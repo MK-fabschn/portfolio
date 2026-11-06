@@ -1,5 +1,6 @@
 ---
 import Footer from '../Footer.astro';
+import Arrow from '../Arrow';
 import { site } from '../../data/site';
 import { ui, type Lang } from '../../i18n';
 
@@ -38,7 +39,7 @@ const socials = site.socials.filter((social) => social.url);
         <h2 class="contact-title">{copy.title[0]}<br /><span>{copy.title[1]}</span></h2>
         <p class="contact-text">{copy.text}</p>
         <a class="pill pill-ink contact-cta" href={`mailto:${site.email}`}>
-          {t.startProject} <span aria-hidden="true">↗</span>
+          {t.startProject} <Arrow dir="up-right" />
         </a>
       </div>
       <div class="contact-list">

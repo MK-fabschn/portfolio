@@ -1,6 +1,7 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import { flushSync } from 'react-dom';
 import type { ResponsiveImage } from '../lib/images';
+import Arrow from './Arrow';
 
 export interface ProjectCard {
   href: string;
@@ -91,9 +92,7 @@ export default function ProjectGrid({ projects, filters, labels }: Props) {
                   <span className="card-title">{project.title}</span>
                   <span className="card-summary">{project.summary}</span>
                 </span>
-                <span className="card-arrow" aria-hidden="true">
-                  ↗
-                </span>
+                <Arrow dir="up-right" className="card-arrow" />
               </span>
             </a>
           </li>
@@ -102,7 +101,7 @@ export default function ProjectGrid({ projects, filters, labels }: Props) {
       {matching.length > shown.length && (
         <div className="load-more-row">
           <button type="button" className="load-more" onClick={loadMore}>
-            {labels.loadMore} <span aria-hidden="true">↓</span>
+            {labels.loadMore} <Arrow dir="down" />
           </button>
         </div>
       )}

@@ -1,6 +1,4 @@
 ---
-import { statSync } from 'node:fs';
-import { join } from 'node:path';
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../PageHeader.astro';
 import Footer from '../Footer.astro';
@@ -23,12 +21,7 @@ const pages = await Promise.all(
 const total = pages.length;
 /** A one-page document is shown as a single sheet, without the flip book. */
 const single = total === 1;
-const megabytes = new Intl.NumberFormat(lang === 'de' ? 'de-AT' : 'en', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const files = downloads[doc].map((file) => ({
-  ...file,
-  // No-break space, so "MB" never ends up alone on the next line.
-  size: `${megabytes.format(statSync(join(process.cwd(), 'public', file.href)).size / 1024 ** 2)} MB`,
-}));
+const files = downloads[doc];
 
 /** Per document: page title, heading, lead, and the link to the other document. */
 const docCopy = {
@@ -146,9 +139,6 @@ const copy = {
                     <li>
                       <a href={file.href} download>
                         <span class="download-name">{copy.kinds[file.kind]}</span>
-                        <span class="download-meta">
-                          {file.meta[lang]} · {file.size}
-                        </span>
                       </a>
                     </li>
                   ))
@@ -577,8 +567,7 @@ const copy = {
   }
   .download-menu a {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+    align-items: center;
     min-height: var(--tap);
     padding: var(--space-3) var(--space-4);
     border-radius: 0.625rem;
@@ -592,10 +581,6 @@ const copy = {
   .download-name::after {
     content: ' ↓';
     color: var(--petrol);
-  }
-  .download-meta {
-    font-size: 0.8125rem;
-    color: var(--muted);
   }
 
   .print-stage {
@@ -828,10 +813,6 @@ const copy = {
     }
     .download-menu a:hover {
       background: var(--sand);
-    }
-    /* on Sand, where Stein only reaches 4.0:1 */
-    .download-menu a:hover .download-meta {
-      color: var(--ink-soft);
     }
   }
   @media (max-width: 559px) {

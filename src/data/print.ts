@@ -15,8 +15,6 @@ export const printDocs = ['portfolio', 'cv'] as const satisfies readonly PrintDo
 export interface PrintDownload {
   kind: 'digital' | 'print';
   href: string;
-  /** What sets this file apart; the page adds the file size. */
-  meta: Record<Lang, string>;
 }
 
 export const downloads: Record<PrintDoc, PrintDownload[]> = {
@@ -24,24 +22,20 @@ export const downloads: Record<PrintDoc, PrintDownload[]> = {
     {
       kind: 'digital',
       href: '/print/fabian-trutschnig-portfolio.pdf',
-      meta: { de: 'Interaktiv · RGB · Lesezeichen und Links', en: 'Interactive · RGB · bookmarks and links' },
     },
     {
       kind: 'print',
       href: '/print/fabian-trutschnig-portfolio-druck.pdf',
-      meta: { de: 'PDF/X-4 · CMYK · Druckbögen ohne Beschnitt', en: 'PDF/X-4 · CMYK · spreads without bleed' },
     },
   ],
   cv: [
     {
       kind: 'digital',
       href: '/print/fabian-trutschnig-lebenslauf.pdf',
-      meta: { de: 'Interaktiv · RGB · Links', en: 'Interactive · RGB · links' },
     },
     {
       kind: 'print',
       href: '/print/fabian-trutschnig-lebenslauf-druck.pdf',
-      meta: { de: 'PDF/X-4 · CMYK · 3 mm Beschnitt', en: 'PDF/X-4 · CMYK · 3 mm bleed' },
     },
   ],
 };
